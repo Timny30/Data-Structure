@@ -1,0 +1,14 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Data Str.aa20368c\\x64\\Debug\\Data Structure Assignment.obj",
+            "outputs": [
+                "Data Str.aa20368c\\x64\\Debug\\Data Structure Assignment.cpp.obj.dt.module.json",
+                "Data Str.aa20368c\\x64\\Debug\\Data Structure Assignment.cpp.obj.dt.d.json"
+            ],
+            "requires": []
+        }
+    ]
+}
