@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Data Str.aa20368c\\x64\\Debug\\patientRecord.obj",
+            "outputs": [
+                "Data Str.aa20368c\\x64\\Debug\\patientRecord.h_6E26D0B0769B6F91.ifc.dt.module.json",
+                "Data Str.aa20368c\\x64\\Debug\\patientRecord.h_6E26D0B0769B6F91.ifc.dt.d.json",
+                "Data Str.aa20368c\\x64\\Debug\\patientRecord.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "C:\\Users\\chong\\source\\repos\\Data Structure Assignment\\patientRecord.h",
+                    "source-path": "c:\\users\\chong\\source\\repos\\data structure assignment\\patientrecord.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}

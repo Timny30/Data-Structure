@@ -13,10 +13,33 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Datasets">
+      <UniqueIdentifier>{4fc29978-c8a1-4ba8-9ea8-d04bc711b36a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Data Structure Assignment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="toArray.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="patientRecord.h">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="toLinkedList.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\OneDrive - Asia Pacific University of Technology And Innovation (APU)\Degree Programme\Data Structures\Assignment\dataset1 facility_a.csv">
+      <Filter>Datasets</Filter>
+    </None>
+    <None Include="..\..\..\OneDrive - Asia Pacific University of Technology And Innovation (APU)\Degree Programme\Data Structures\Assignment\dataset2 facility_b.csv">
+      <Filter>Datasets</Filter>
+    </None>
+    <None Include="..\..\..\OneDrive - Asia Pacific University of Technology And Innovation (APU)\Degree Programme\Data Structures\Assignment\dataset3_facility_c.csv">
+      <Filter>Datasets</Filter>
+    </None>
   </ItemGroup>
 </Project>

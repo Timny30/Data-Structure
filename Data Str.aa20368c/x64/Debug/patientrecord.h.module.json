@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "revision": 0,
+    "rules": [
+        {
+            "primary-output": "Data Str.aa20368c\\x64\\Debug\\patientRecord.h.obj",
+            "outputs": [
+                "C:\\Users\\chong\\source\\repos\\Data Structure Assignment\\Data Str.aa20368c\\x64\\Debug\\vc145.pdb",
+                "Data Str.aa20368c\\x64\\Debug\\",
+                "C:\\Users\\chong\\source\\repos\\Data Structure Assignment\\Data Str.aa20368c\\x64\\Debug\\patientRecord.h.ifc"
+            ],
+            "provides": [
+                {
+                    "logical-name": "patientRecord.h",
+                    "source-path": "c:\\users\\chong\\source\\repos\\data structure assignment\\patientrecord.h",
+                    "lookup-method": "absolute"
+                }
+            ],
+            "requires": []
+        }
+    ]
+}
