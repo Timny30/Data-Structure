@@ -27,22 +27,7 @@ private:
         for (int i = 0; i < arr.size; i++) {
             res.comparisons++;
             if (arr.data[i].age >= minAge && arr.data[i].age <= maxAge) res.matchesFound++;
-            else if (isSorted && arr.data[i].age > maxAge) break; // Early exit if sorted
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        return res;
-    }
-
-    static SearchResult linearSearchAgeList(const LinkedList& list, int minAge, int maxAge, bool isSorted) {
-        SearchResult res;
-        auto start = std::chrono::high_resolution_clock::now();
-        node* curr = list.head;
-        while (curr != nullptr) {
-            res.comparisons++;
-            if (curr->data.age >= minAge && curr->data.age <= maxAge) res.matchesFound++;
-            else if (isSorted && curr->data.age > maxAge) break;
-            curr = curr->next;
+            else if (isSorted && arr.data[i].age > maxAge) break;
         }
         auto end = std::chrono::high_resolution_clock::now();
         res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
@@ -83,55 +68,6 @@ private:
         return res;
     }
 
-    static SearchResult jumpSearchAgeList(const LinkedList& list, int minAge, int maxAge) {
-        SearchResult res;
-        if (list.head == nullptr) return res;
-        auto start = std::chrono::high_resolution_clock::now();
-
-        int n = 0;
-        node* counter = list.head;
-        while (counter) { n++; counter = counter->next; }
-        
-        int step = std::sqrt(n);
-        node* prevNode = list.head;
-        node* stepNode = list.head;
-
-        auto advanceStep = [&](node* current, int steps) {
-            for (int i = 0; i < steps && current != nullptr; i++) {
-                current = current->next;
-                res.comparisons++;
-            }
-            return current;
-        };
-
-        stepNode = advanceStep(stepNode, step - 1);
-
-        while (stepNode != nullptr && stepNode->data.age < minAge) {
-            res.comparisons++;
-            prevNode = stepNode->next;
-            stepNode = advanceStep(stepNode, step);
-        }
-        if (stepNode != nullptr) res.comparisons++;
-
-        while (prevNode != nullptr && prevNode->data.age < minAge) {
-            res.comparisons++;
-            prevNode = prevNode->next;
-        }
-        if (prevNode != nullptr) res.comparisons++;
-
-        while (prevNode != nullptr && prevNode->data.age <= maxAge) {
-            res.comparisons++;
-            if (prevNode->data.age >= minAge) res.matchesFound++;
-            prevNode = prevNode->next;
-        }
-        if (prevNode != nullptr) res.comparisons++;
-
-        auto end = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        return res;
-    }
-
-
     // ==========================================
     // 2. CARE TYPE SEARCH LOGIC (Linear Only)
     // ==========================================
@@ -147,20 +83,6 @@ private:
         return res;
     }
 
-    static SearchResult linearSearchCareTypeList(const LinkedList& list, const std::string& targetType) {
-        SearchResult res;
-        auto start = std::chrono::high_resolution_clock::now();
-        node* curr = list.head;
-        while (curr != nullptr) {
-            res.comparisons++;
-            if (curr->data.careType == targetType) res.matchesFound++;
-            curr = curr->next;
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        return res;
-    }
-
     // ==========================================
     // 3. VISIT DURATION SEARCH LOGIC (Threshold)
     // ==========================================
@@ -170,20 +92,6 @@ private:
         for (int i = 0; i < arr.size; i++) {
             res.comparisons++;
             if (arr.data[i].lengthOfStay >= threshold) res.matchesFound++;
-        }
-        auto end = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        return res;
-    }
-
-    static SearchResult linearSearchDurationList(const LinkedList& list, int threshold) {
-        SearchResult res;
-        auto start = std::chrono::high_resolution_clock::now();
-        node* curr = list.head;
-        while (curr != nullptr) {
-            res.comparisons++;
-            if (curr->data.lengthOfStay >= threshold) res.matchesFound++;
-            curr = curr->next;
         }
         auto end = std::chrono::high_resolution_clock::now();
         res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
@@ -213,7 +121,6 @@ private:
         }
         if (prev < std::min(step, n)) res.comparisons++;
 
-        // Since it's sorted ascending, everything after 'prev' meets the >= threshold condition
         while (prev < n) {
             res.comparisons++;
             if (arr.data[prev].lengthOfStay >= threshold) res.matchesFound++;
@@ -224,54 +131,6 @@ private:
         res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
         return res;
     }
-
-    static SearchResult jumpSearchDurationList(const LinkedList& list, int threshold) {
-        SearchResult res;
-        if (list.head == nullptr) return res;
-        auto start = std::chrono::high_resolution_clock::now();
-
-        int n = 0;
-        node* counter = list.head;
-        while (counter) { n++; counter = counter->next; }
-        
-        int step = std::sqrt(n);
-        node* prevNode = list.head;
-        node* stepNode = list.head;
-
-        auto advanceStep = [&](node* current, int steps) {
-            for (int i = 0; i < steps && current != nullptr; i++) {
-                current = current->next;
-                res.comparisons++;
-            }
-            return current;
-        };
-
-        stepNode = advanceStep(stepNode, step - 1);
-
-        while (stepNode != nullptr && stepNode->data.lengthOfStay < threshold) {
-            res.comparisons++;
-            prevNode = stepNode->next;
-            stepNode = advanceStep(stepNode, step);
-        }
-        if (stepNode != nullptr) res.comparisons++;
-
-        while (prevNode != nullptr && prevNode->data.lengthOfStay < threshold) {
-            res.comparisons++;
-            prevNode = prevNode->next;
-        }
-        if (prevNode != nullptr) res.comparisons++;
-
-        while (prevNode != nullptr) {
-            res.comparisons++;
-            if (prevNode->data.lengthOfStay >= threshold) res.matchesFound++;
-            prevNode = prevNode->next;
-        }
-
-        auto end = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start).count();
-        return res;
-    }
-
 
     // ==========================================
     // UTILITY: Print Format
@@ -301,46 +160,39 @@ private:
     }
 
 public:
-    static void runAgeSearchExperiment(const Array& originalArr, const LinkedList& originalList, int minAge, int maxAge, const std::string& facility) {
+    static void runAgeSearchExperiment(const Array& originalArr, int minAge, int maxAge, const std::string& facility) {
         printHeader("SEARCH EXPERIMENT: " + facility + " (Target Age: " + std::to_string(minAge) + " - " + std::to_string(maxAge) + ")");
         
         printRow("Linear Search", "Array", "Unsorted", linearSearchAgeArray(originalArr, minAge, maxAge, false));
-        printRow("Linear Search", "Singly List", "Unsorted", linearSearchAgeList(originalList, minAge, maxAge, false));
 
-        Array sortedArr(originalArr); LinkedList sortedList(originalList);
-        MergeSort::sort(sortedArr, SortKey::Age); MergeSort::sort(sortedList, SortKey::Age);
+        Array sortedArr(originalArr);
+        MergeSort::sort(sortedArr, SortKey::Age);
 
         printRow("Linear Search", "Array", "Sorted", linearSearchAgeArray(sortedArr, minAge, maxAge, true));
-        printRow("Linear Search", "Singly List", "Sorted", linearSearchAgeList(sortedList, minAge, maxAge, true));
         printRow("Jump Search", "Array", "Sorted", jumpSearchAgeArray(sortedArr, minAge, maxAge));
-        printRow("Jump Search", "Singly List", "Sorted", jumpSearchAgeList(sortedList, minAge, maxAge));
         std::cout << "+" << std::string(93, '=') << "+\n";
     }
 
-    static void runCareTypeSearchExperiment(const Array& originalArr, const LinkedList& originalList, const std::string& targetType, const std::string& facility) {
+    static void runCareTypeSearchExperiment(const Array& originalArr, const std::string& targetType, const std::string& facility) {
         printHeader("SEARCH EXPERIMENT: " + facility + " (Care Type: " + targetType + ")");
         
         printRow("Linear Search", "Array", "Unsorted", linearSearchCareTypeArray(originalArr, targetType));
-        printRow("Linear Search", "Singly List", "Unsorted", linearSearchCareTypeList(originalList, targetType));
         
         std::cout << "+" << std::string(93, '-') << "+\n";
         std::cout << "| Note: Jump Search skipped because dataset is not sorted by non-numerical CareType string.     |\n";
         std::cout << "+" << std::string(93, '=') << "+\n";
     }
 
-    static void runDurationSearchExperiment(const Array& originalArr, const LinkedList& originalList, int threshold, const std::string& facility) {
+    static void runDurationSearchExperiment(const Array& originalArr, int threshold, const std::string& facility) {
         printHeader("SEARCH EXPERIMENT: " + facility + " (Visit Duration >= " + std::to_string(threshold) + " Hours)");
         
         printRow("Linear Search", "Array", "Unsorted", linearSearchDurationArray(originalArr, threshold));
-        printRow("Linear Search", "Singly List", "Unsorted", linearSearchDurationList(originalList, threshold));
 
-        Array sortedArr(originalArr); LinkedList sortedList(originalList);
-        MergeSort::sort(sortedArr, SortKey::VisitDuration); MergeSort::sort(sortedList, SortKey::VisitDuration);
+        Array sortedArr(originalArr);
+        MergeSort::sort(sortedArr, SortKey::VisitDuration);
 
         printRow("Linear Search", "Array", "Sorted", linearSearchDurationArray(sortedArr, threshold));
-        printRow("Linear Search", "Singly List", "Sorted", linearSearchDurationList(sortedList, threshold));
         printRow("Jump Search", "Array", "Sorted", jumpSearchDurationArray(sortedArr, threshold));
-        printRow("Jump Search", "Singly List", "Sorted", jumpSearchDurationList(sortedList, threshold));
         std::cout << "+" << std::string(93, '=') << "+\n";
     }
 };

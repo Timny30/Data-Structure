@@ -87,45 +87,6 @@ struct node { // build via chaining data points across memory
 	node(const patientRecord& record) : data(record), next(nullptr) {}
 };
 
-class LinkedList {
-public:
-	node* head; // start of the chain
-	node* tail; // end of the chain
-
-	// prevent crash while accessing the new linkedList 
-	LinkedList() : head(nullptr), tail(nullptr) {}
-
-	LinkedList(const LinkedList& other) : head(nullptr), tail(nullptr) {
-		node* current = other.head; // link starting line of the original list
-		while (current != nullptr) {
-			push_back(current->data); // reads patient data within node
-			current = current->next; // push data into bew node 
-		}
-	}
-
-	~LinkedList() { // destructor: deleting each node preventing memory leak
-		node* current = head;
-		while (current != nullptr) {
-			node* nextNode = current->next; // save it in another node
-			delete current; 
-			current = nextNode; // asign new node as current node
-		}
-	}
-
-	void push_back(const patientRecord& record) {
-		node* newnode = new node(record); // construct new node
-		if (head == nullptr) { // if list is empty
-			head = tail = newnode; // data will be the starting and ending point
-		}
-		else {
-			tail->next = newnode; // added data will be the tail
-			tail = newnode;
-		}
-	}
-
-};
-
 Array toArray(const std::string& filename);
-LinkedList toLinkedList(const std::string& filename);
 
 #endif
