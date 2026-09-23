@@ -21,6 +21,12 @@
     <ClCompile Include="Data Structure Assignment.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="bubbleSort.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="bubbleSort.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
     <ClCompile Include="toArray.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -30,6 +36,9 @@
     <ClCompile Include="toLinkedList.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="mergeSort.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\OneDrive - Asia Pacific University of Technology And Innovation (APU)\Degree Programme\Data Structures\Assignment\dataset1 facility_a.csv">

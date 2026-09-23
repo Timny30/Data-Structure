@@ -140,9 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Data Structure Assignment.cpp" />
+    <ClCompile Include="bubbleSort.cpp" />
+    <ClCompile Include="bubbleSort.h" />
     <ClCompile Include="patientRecord.h" />
     <ClCompile Include="toArray.cpp" />
     <ClCompile Include="toLinkedList.cpp" />
+    <ClInclude Include="mergeSort.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\OneDrive - Asia Pacific University of Technology And Innovation (APU)\Degree Programme\Data Structures\Assignment\dataset1 facility_a.csv" />

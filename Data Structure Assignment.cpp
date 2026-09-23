@@ -2,6 +2,8 @@
 #include <iomanip>
 #include "patientRecord.h"
 #include "calculation.h"
+#include "mergeSort.h"
+#include "bubbleSort.h"
 
 int main() {
     std::cout << "\n=======================================================\n";
@@ -22,6 +24,18 @@ int main() {
     Array arr3 = toArray("Datasets/dataset3_facility_c.csv");
     DatasetSummary summary3 = analyzeDataset(arr3, "Community Health Clinic (Facility C)");
     printSummary(summary3);
+
+    LinkedList list1 = toLinkedList("Datasets/dataset1 facility_a.csv");
+    LinkedList list2 = toLinkedList("Datasets/dataset2 facility_b.csv");
+    LinkedList list3 = toLinkedList("Datasets/dataset3_facility_c.csv");
+
+    MergeSort::printPerformance(arr1, list1, "Facility A");
+    MergeSort::printPerformance(arr2, list2, "Facility B");
+    MergeSort::printPerformance(arr3, list3, "Facility C");
+
+    BubbleSort::printPerformance(arr1, list1, "Facility A");
+    BubbleSort::printPerformance(arr2, list2, "Facility B");
+    BubbleSort::printPerformance(arr3, list3, "Facility C");
 
     return 0;
 }
