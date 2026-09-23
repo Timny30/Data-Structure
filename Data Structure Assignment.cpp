@@ -4,6 +4,7 @@
 #include "calculation.h"
 #include "mergeSort.h"
 #include "bubbleSort.h"
+#include "searchExperiment.h"
 
 int main() {
     std::cout << "\n=======================================================\n";
@@ -36,6 +37,21 @@ int main() {
     BubbleSort::printPerformance(arr1, list1, "Facility A");
     BubbleSort::printPerformance(arr2, list2, "Facility B");
     BubbleSort::printPerformance(arr3, list3, "Facility C");
+
+    // =======================================================
+    // RUN SEARCH EXPERIMENTS
+    // =======================================================
+    // Example: Searching for Senior Citizens (Age 61 to 100)
+    SearchExperiment::runAgeSearchExperiment(arr1, list1, 61, 100, "General Hospital");
+    
+    // Example: Searching for Young Adults (Age 18 to 25)
+    SearchExperiment::runAgeSearchExperiment(arr2, list2, 18, 25, "University Medical Center");
+    
+    // NEW: Search for 'Emergency' Care Type in Facility B
+    SearchExperiment::runCareTypeSearchExperiment(arr2, list2, "Emergency", "University Medical Center");
+
+    // NEW: Search for Visit Durations >= 24 hours in Facility C
+    SearchExperiment::runDurationSearchExperiment(arr3, list3, 24, "Community Health Clinic");
 
     return 0;
 }
