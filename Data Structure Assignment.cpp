@@ -5,6 +5,7 @@
 #include "mergeSort.h"
 #include "bubbleSort.h"
 #include "searchExperiment.h"
+#include "arrayMemory.h"
 
 int main() {
     // Load Datasets into custom Array
@@ -19,6 +20,11 @@ int main() {
     Array arr3 = toArray("Datasets/dataset3_facility_c.csv");
     DatasetSummary summary3 = analyzeDataset(arr3, "Community Health Clinic (Facility C)");
     printSummary(summary3);
+
+    // Array Structural Memory Footprint (Array Only)
+    printArrayMemoryFootprint(arr1, "Facility A");
+    printArrayMemoryFootprint(arr2, "Facility B");
+    printArrayMemoryFootprint(arr3, "Facility C");
 
     // Sorting Performance (Array Only)
     MergeSort::printPerformance(arr1, "Facility A");
