@@ -5,6 +5,7 @@
 #include "mergeSort.h"
 #include "bubbleSort.h"
 #include "searchExperiment.h"
+#include "linkedListMemory.h"
 
 int main() {
     std::cout << "\n=======================================================\n";
@@ -25,6 +26,11 @@ int main() {
     LinkedList list3 = toLinkedList("Datasets/dataset3_facility_c.csv");
     DatasetSummary summary3 = analyzeDataset(list3, "Community Health Clinic (Facility C)");
     printSummary(summary3);
+
+    // Linked List Structural Memory Footprint (Linked List Only)
+    printLinkedListMemoryFootprint(list1, "Facility A");
+    printLinkedListMemoryFootprint(list2, "Facility B");
+    printLinkedListMemoryFootprint(list3, "Facility C");
 
     MergeSort::printPerformance(list1, "Facility A");
     MergeSort::printPerformance(list2, "Facility B");
