@@ -27,9 +27,9 @@ struct DatasetSummary {
     AgeGroupMetrics ageGroups[NUM_AGE_GROUPS];
 };
 
-// =============================================================================
-// Custom Node-Based Frequency Tracker (Replaces std::map for Care Type Counting)
-// =============================================================================
+// ===================================
+// Custom Node-Based Frequency Tracker 
+// ===================================
 struct CareTypeFreqNode {
     std::string careType;
     int count;
@@ -107,44 +107,11 @@ inline void initSummaryGroups(DatasetSummary& summary) {
     summary.ageGroups[5].groupName = "Unknown Age Group";
 }
 
-// =============================================================================
+// ========================
 // Analysis Implementations
-// =============================================================================
+// ========================
 
-// 1. Analyze using custom Array
-inline DatasetSummary analyzeDataset(const Array& arr, const std::string& facilityName) {
-    DatasetSummary summary;
-    summary.facilityName = facilityName;
-    initSummaryGroups(summary);
-
-    CareTypeTracker trackers[NUM_AGE_GROUPS];
-
-    for (int i = 0; i < arr.size; ++i) {
-        const patientRecord& record = arr.data[i];
-        int idx = mapAgeToGroupIndex(record.age);
-        double cost = record.calculateTotalCost();
-
-        summary.ageGroups[idx].patientCount++;
-        summary.ageGroups[idx].totalCost += cost;
-        trackers[idx].record(record.careType);
-
-        summary.totalPatients++;
-        summary.overallTotalCost += cost;
-    }
-
-    // Finalize averages and preferred care type
-    for (int i = 0; i < NUM_AGE_GROUPS; ++i) {
-        if (summary.ageGroups[i].patientCount > 0) {
-            summary.ageGroups[i].averageCost = summary.ageGroups[i].totalCost / summary.ageGroups[i].patientCount;
-            summary.ageGroups[i].preferredCareType = trackers[i].getMostPreferred();
-        }
-    }
-
-    summary.overallAverageCost = (summary.totalPatients > 0) ? (summary.overallTotalCost / summary.totalPatients) : 0.0;
-    return summary;
-}
-
-// 2. Analyze using custom LinkedList
+// Analyze using custom LinkedList
 inline DatasetSummary analyzeDataset(const LinkedList& list, const std::string& facilityName) {
     DatasetSummary summary;
     summary.facilityName = facilityName;
@@ -178,9 +145,9 @@ inline DatasetSummary analyzeDataset(const LinkedList& list, const std::string& 
     return summary;
 }
 
-// =============================================================================
-// Formatted Table Display (Using <iomanip>)
-// =============================================================================
+// =======================
+// Formatted Table Display
+// =======================
 inline void printSummary(const DatasetSummary& summary) {
     std::cout << "\n+" << std::string(103, '=') << "+\n";
     std::cout << "| " << std::left << std::setw(101) 
@@ -204,10 +171,9 @@ inline void printSummary(const DatasetSummary& summary) {
               << " |\n";
     std::cout << "+" << std::string(103, '-') << "+\n";
 
-    // Data Rows
     for (int i = 0; i < NUM_AGE_GROUPS; ++i) {
         const auto& g = summary.ageGroups[i];
-        if (g.patientCount == 0) continue; // Skip groups with no records
+        if (g.patientCount == 0) continue;
 
         std::cout << "| " << std::left 
                   << std::setw(34) << g.groupName

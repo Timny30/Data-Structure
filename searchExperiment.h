@@ -226,7 +226,7 @@ private:
 
 
     // ==========================================
-    // UTILITY: Print Format
+    // Print Format
     // ==========================================
     static void printHeader(const std::string& title) {
         std::cout << "\n+" << std::string(166, '=') << "+\n";
