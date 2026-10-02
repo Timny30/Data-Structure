@@ -224,6 +224,168 @@ private:
         return res;
     }
 
+    // ==========================================
+    // 1. BINARY SEARCH (Linked List Adaptation)
+    // ==========================================
+    static SearchResult binarySearchAgeList(const LinkedList& list, int minAge, int maxAge) {
+        SearchResult res;
+        auto startClock = std::chrono::high_resolution_clock::now();
+
+        node* start = list.head;
+        node* end = nullptr;
+        node* lowerBound = nullptr;
+
+        while (start != end) {
+            node* mid = getMiddle(start, end, res);
+            if (mid == nullptr) break;
+
+            res.comparisons++;
+            res.recordAccesses++;
+            if (mid->data.age >= minAge) {
+                lowerBound = mid;
+                end = mid; // Search left half to ensure we find the very first match
+            } else {
+                start = mid->next;
+            }
+        }
+
+        // Linear scan from the discovered lower bound
+        node* curr = lowerBound ? lowerBound : start;
+        while (curr != nullptr && curr->data.age <= maxAge) {
+            res.comparisons++;
+            res.recordAccesses++;
+            if (curr->data.age >= minAge) res.matchesFound++;
+            curr = curr->next;
+        }
+        if (curr != nullptr) { res.comparisons++; res.recordAccesses++; }
+
+        auto endClock = std::chrono::high_resolution_clock::now();
+        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(endClock - startClock).count();
+        return res;
+    }
+
+    // ==========================================
+    // 2. EXPONENTIAL SEARCH (Linked List Adaptation)
+    // ==========================================
+    static SearchResult exponentialSearchAgeList(const LinkedList& list, int minAge, int maxAge) {
+        SearchResult res;
+        if (list.head == nullptr) return res;
+        auto startClock = std::chrono::high_resolution_clock::now();
+
+        int bound = 1;
+        node* boundNode = list.head;
+        node* prevNode = nullptr;
+
+        // Phase 1: Jump in powers of 2 to find the range
+        while (boundNode != nullptr && boundNode->data.age < minAge) {
+            res.comparisons++;
+            res.recordAccesses++;
+            prevNode = boundNode;
+
+            for (int i = 0; i < bound && boundNode != nullptr; i++) {
+                boundNode = boundNode->next;
+                res.recordAccesses++;
+            }
+            bound *= 2;
+        }
+        if (boundNode != nullptr) { res.comparisons++; res.recordAccesses++; }
+
+        // Phase 2: Binary Search within the discovered bounds
+        node* start = prevNode ? prevNode : list.head;
+        node* end = boundNode ? boundNode->next : nullptr;
+        node* lowerBound = nullptr;
+
+        while (start != end) {
+            node* mid = getMiddle(start, end, res);
+            if (mid == nullptr) break;
+
+            res.comparisons++;
+            res.recordAccesses++;
+            if (mid->data.age >= minAge) {
+                lowerBound = mid;
+                end = mid;
+            } else {
+                start = mid->next;
+            }
+        }
+
+        node* curr = lowerBound ? lowerBound : start;
+        while (curr != nullptr && curr->data.age <= maxAge) {
+            res.comparisons++;
+            res.recordAccesses++;
+            if (curr->data.age >= minAge) res.matchesFound++;
+            curr = curr->next;
+        }
+        if (curr != nullptr) { res.comparisons++; res.recordAccesses++; }
+
+        auto endClock = std::chrono::high_resolution_clock::now();
+        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(endClock - startClock).count();
+        return res;
+    }
+
+    // ==========================================
+    // 3. INTERPOLATION SEARCH (Linked List Adaptation)
+    // ==========================================
+    static SearchResult interpolationSearchAgeList(const LinkedList& list, int minAge, int maxAge) {
+        SearchResult res;
+        if (list.head == nullptr) return res;
+        auto startClock = std::chrono::high_resolution_clock::now();
+
+        // Need total node count to simulate array indexes
+        int n = 0;
+        node* counter = list.head;
+        while (counter != nullptr) {
+            n++;
+            res.recordAccesses++;
+            counter = counter->next;
+        }
+
+        int low = 0;
+        int high = n - 1;
+        node* lowNode = list.head;
+        node* highNode = getNodeAtIndex(list.head, high, res);
+        node* lowerBound = nullptr;
+
+        while (low <= high && minAge >= lowNode->data.age && minAge <= highNode->data.age) {
+            res.comparisons += 2; // Checking boundaries
+            
+            if (low == high) {
+                if (lowNode->data.age >= minAge) lowerBound = lowNode;
+                break;
+            }
+
+            // Interpolation formula
+            double proportion = static_cast<double>(minAge - lowNode->data.age) / (highNode->data.age - lowNode->data.age);
+            int pos = low + static_cast<int>(proportion * (high - low));
+
+            node* posNode = getNodeAtIndex(list.head, pos, res);
+            res.comparisons++;
+
+            if (posNode->data.age >= minAge) {
+                // Potential lower bound found, but we must check left side to ensure it's the *first* instance
+                lowerBound = posNode;
+                high = pos - 1;
+                highNode = getNodeAtIndex(list.head, high, res);
+            } else {
+                low = pos + 1;
+                lowNode = getNodeAtIndex(list.head, low, res);
+            }
+        }
+
+        node* curr = lowerBound ? lowerBound : lowNode;
+        while (curr != nullptr && curr->data.age <= maxAge) {
+            res.comparisons++;
+            res.recordAccesses++;
+            if (curr->data.age >= minAge) res.matchesFound++;
+            curr = curr->next;
+        }
+        if (curr != nullptr) { res.comparisons++; res.recordAccesses++; }
+
+        auto endClock = std::chrono::high_resolution_clock::now();
+        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(endClock - startClock).count();
+        return res;
+    }
+
 
     // ==========================================
     // Print Format
@@ -295,6 +457,33 @@ private:
         return outcome;
     }
 
+    // Helper 1: Finds the middle node for Binary Search using slow/fast pointers
+    static node* getMiddle(node* start, node* end, SearchResult& res) {
+        if (start == nullptr) return nullptr;
+        node* slow = start;
+        node* fast = start->next;
+        while (fast != end) {
+            fast = fast->next;
+            res.recordAccesses++;
+            if (fast != end) {
+                slow = slow->next;
+                fast = fast->next;
+                res.recordAccesses += 2;
+            }
+        }
+        return slow;
+    }
+
+    // Helper 2: Traverses to a specific index for Interpolation Search
+    static node* getNodeAtIndex(node* start, int index, SearchResult& res) {
+        node* curr = start;
+        for (int i = 0; i < index && curr != nullptr; i++) {
+            curr = curr->next;
+            res.recordAccesses++;
+        }
+        return curr;
+    }
+
 public:
     static void runAgeSearchExperiment(const LinkedList& originalList, int minAge, int maxAge, const std::string& facility) {
         printHeader("SEARCH EXPERIMENT: " + facility + " (Target Age: " + std::to_string(minAge) + " - " + std::to_string(maxAge) + ")");
@@ -303,17 +492,29 @@ public:
             return linearSearchAgeList(originalList, minAge, maxAge, false);
         }));
 
-        // Sorted copy is created and sorted ONCE, before repeated-search
-        // timing begins; sort cost stays excluded from search time.
         LinkedList sortedList(originalList);
         MergeSort::sort(sortedList, SortKey::Age);
 
         printRow("Linear Search", "Singly List", "Sorted", runRepeatedSearch([&]() {
             return linearSearchAgeList(sortedList, minAge, maxAge, true);
         }));
+        
         printRow("Jump Search", "Singly List", "Sorted", runRepeatedSearch([&]() {
             return jumpSearchAgeList(sortedList, minAge, maxAge);
         }));
+        
+        printRow("Binary Search", "Singly List", "Sorted", runRepeatedSearch([&]() {
+            return binarySearchAgeList(sortedList, minAge, maxAge);
+        }));
+        
+        printRow("Exponen. Search", "Singly List", "Sorted", runRepeatedSearch([&]() {
+            return exponentialSearchAgeList(sortedList, minAge, maxAge);
+        }));
+        
+        printRow("Interpol. Search", "Singly List", "Sorted", runRepeatedSearch([&]() {
+            return interpolationSearchAgeList(sortedList, minAge, maxAge);
+        }));
+
         std::cout << "+" << std::string(166, '=') << "+\n";
     }
 
