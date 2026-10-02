@@ -2,6 +2,7 @@
 #define MERGE_SORT_H
 
 #include "patientRecord.h"
+#include "sortMetrics.h"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -28,23 +29,27 @@ private:
     }
 
     static void merge(patientRecord* data, patientRecord* buffer,
-                      int first, int middle, int last, SortKey key) {
+                      int first, int middle, int last, SortKey key, SortMetrics& metrics) {
         int left = first;
         int right = middle + 1;
         int output = first;
 
         while (left <= middle && right <= last) {
+            metrics.comparisons++;
             if (comesBefore(data[right], data[left], key)) {
                 buffer[output++] = data[right++];
             } else {
                 buffer[output++] = data[left++];
             }
+            metrics.dataMovements++;
         }
         while (left <= middle) {
             buffer[output++] = data[left++];
+            metrics.dataMovements++;
         }
         while (right <= last) {
             buffer[output++] = data[right++];
+            metrics.dataMovements++;
         }
         for (int i = first; i <= last; ++i) {
             data[i] = buffer[i];
@@ -52,14 +57,14 @@ private:
     }
 
     static void sortArray(patientRecord* data, patientRecord* buffer,
-                          int first, int last, SortKey key) {
+                          int first, int last, SortKey key, SortMetrics& metrics) {
         if (first >= last) {
             return;
         }
         const int middle = first + (last - first) / 2;
-        sortArray(data, buffer, first, middle, key);
-        sortArray(data, buffer, middle + 1, last, key);
-        merge(data, buffer, first, middle, last, key);
+        sortArray(data, buffer, first, middle, key, metrics);
+        sortArray(data, buffer, middle + 1, last, key, metrics);
+        merge(data, buffer, first, middle, last, key, metrics);
     }
 
     static const char* keyName(SortKey key) {
@@ -72,13 +77,15 @@ private:
     }
 
 public:
-    static void sort(Array& array, SortKey key) {
+    static SortMetrics sort(Array& array, SortKey key) {
+        SortMetrics metrics;
         if (array.size < 2) {
-            return;
+            return metrics;
         }
         patientRecord* buffer = new patientRecord[array.size];
-        sortArray(array.data, buffer, 0, array.size - 1, key);
+        sortArray(array.data, buffer, 0, array.size - 1, key, metrics);
         delete[] buffer;
+        return metrics;
     }
 
     static void printPerformance(const Array& array, const std::string& datasetName) {

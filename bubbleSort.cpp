@@ -64,18 +64,21 @@ void BubbleSort::printPerformance(const Array& sourceArray, const std::string& f
 	std::cout << "+---------------------+---------------+------------------+------------------+------------------+\n";
 }
 
-void BubbleSort::sort(Array& array) {
-	sort(array, SortField::Age);
+SortMetrics BubbleSort::sort(Array& array) {
+	return sort(array, SortField::Age);
 }
 
-void BubbleSort::sort(Array& array, SortField field) {
+SortMetrics BubbleSort::sort(Array& array, SortField field) {
+    SortMetrics metrics;
 	for (int end = array.size - 1; end > 0; --end) {
 		bool swapped = false;
 		for (int i = 0; i < end; ++i) {
+            metrics.comparisons++;
 			if (shouldSwap(array.data[i], array.data[i + 1], field)) {
 				patientRecord temporary = array.data[i];
 				array.data[i] = array.data[i + 1];
 				array.data[i + 1] = temporary;
+                metrics.dataMovements++;
 				swapped = true;
 			}
 		}
@@ -83,4 +86,5 @@ void BubbleSort::sort(Array& array, SortField field) {
 			break;
 		}
 	}
+    return metrics;
 }

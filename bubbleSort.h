@@ -3,6 +3,7 @@
 
 #include <string>
 #include "patientRecord.h"
+#include "sortMetrics.h"
 
 enum class SortField {
 	Age,
@@ -12,8 +13,8 @@ enum class SortField {
 
 class BubbleSort {
 public:
-	static void sort(Array& array);
-	static void sort(Array& array, SortField field);
+	static SortMetrics sort(Array& array);
+	static SortMetrics sort(Array& array, SortField field);
 	static const char* fieldName(SortField field);
 	static void printPerformance(const Array& sourceArray);
 	static void printPerformance(const Array& sourceArray, const std::string& facilityName);
