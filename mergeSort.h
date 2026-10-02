@@ -3,6 +3,7 @@
 
 #include "patientRecord.h"
 #include "sortMetrics.h"
+#include "benchmarkStats.h"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -28,11 +29,7 @@ private:
         return false;
     }
 
-    // metrics.comparisons: one increment per left-vs-right sort-key evaluation.
-    // metrics.dataMovements: one increment per patientRecord placed into the
-    // merge buffer (includes leftover left/right copies).
     static void merge(patientRecord* data, patientRecord* buffer,
-                      int first, int middle, int last, SortKey key, SortMetrics& metrics) {
                       int first, int middle, int last, SortKey key, SortMetrics& metrics) {
         int left = first;
         int right = middle + 1;
@@ -46,16 +43,13 @@ private:
                 buffer[output++] = data[left++];
             }
             metrics.dataMovements++;
-            metrics.dataMovements++;
         }
         while (left <= middle) {
             buffer[output++] = data[left++];
             metrics.dataMovements++;
-            metrics.dataMovements++;
         }
         while (right <= last) {
             buffer[output++] = data[right++];
-            metrics.dataMovements++;
             metrics.dataMovements++;
         }
         for (int i = first; i <= last; ++i) {
@@ -65,14 +59,10 @@ private:
 
     static void sortArray(patientRecord* data, patientRecord* buffer,
                           int first, int last, SortKey key, SortMetrics& metrics) {
-                          int first, int last, SortKey key, SortMetrics& metrics) {
         if (first >= last) {
             return;
         }
         const int middle = first + (last - first) / 2;
-        sortArray(data, buffer, first, middle, key, metrics);
-        sortArray(data, buffer, middle + 1, last, key, metrics);
-        merge(data, buffer, first, middle, last, key, metrics);
         sortArray(data, buffer, first, middle, key, metrics);
         sortArray(data, buffer, middle + 1, last, key, metrics);
         merge(data, buffer, first, middle, last, key, metrics);
@@ -90,17 +80,12 @@ private:
 public:
     static SortMetrics sort(Array& array, SortKey key) {
         SortMetrics metrics;
-    static SortMetrics sort(Array& array, SortKey key) {
-        SortMetrics metrics;
         if (array.size < 2) {
-            return metrics;
             return metrics;
         }
         patientRecord* buffer = new patientRecord[array.size];
         sortArray(array.data, buffer, 0, array.size - 1, key, metrics);
-        sortArray(array.data, buffer, 0, array.size - 1, key, metrics);
         delete[] buffer;
-        return metrics;
         return metrics;
     }
 
@@ -125,15 +110,11 @@ public:
         std::cout << "+" << std::string(150, '-') << "+\n";
 
         for (SortKey key : keys) {
-            // Warm-up runs: fresh copy each time, results discarded.
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
                 Array warmupCopy(array);
                 sort(warmupCopy, key);
             }
 
-            // Measured runs: fresh copy each time (copy construction is
-            // outside the timed region), starting from the identical
-            // original ordering every run.
             long long samples[SORT_MEASURED_RUNS];
             SortMetrics firstMetrics;
             bool metricsConsistent = true;

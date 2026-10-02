@@ -15,8 +15,6 @@ class BubbleSort {
 public:
 	static SortMetrics sort(Array& array);
 	static SortMetrics sort(Array& array, SortField field);
-	static SortMetrics sort(Array& array);
-	static SortMetrics sort(Array& array, SortField field);
 	static const char* fieldName(SortField field);
 	static void printPerformance(const Array& sourceArray);
 	static void printPerformance(const Array& sourceArray, const std::string& facilityName);

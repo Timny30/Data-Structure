@@ -10,16 +10,6 @@
 #include <cmath>
 #include <algorithm>
 
-// comparisons    = one logical evaluation of a patient record's relevant
-//                  search key against the search criterion (Age/CareType/
-//                  Duration). Index/pointer/nullptr/loop-boundary checks and
-//                  step arithmetic are never counted here.
-// recordAccesses = one patient-record position access performed while
-//                  searching/navigating. For Array (direct indexing) this
-//                  normally coincides 1:1 with comparisons; for a Linked
-//                  List it also captures pure node-to-node traversal that
-//                  performs no key comparison (see searchExperiment.h on the
-//                  Linked List branch).
 struct SearchResult {
     int matchesFound = 0;
     long long comparisons = 0;
@@ -28,14 +18,6 @@ struct SearchResult {
     std::string memoryOverhead = "O(1)";
 };
 
-// Result of a repeated benchmark of one search configuration.
-// result: the deterministic values (matches/comparisons/recordAccesses/
-//         memoryOverhead) captured from the first measured run.
-// timing: aggregated Median/Average/Min/Max statistics across all measured
-//         runs (warm-up runs never contribute samples).
-// metricsConsistent: false only if a later measured run's deterministic
-//         values differed from the first run's - a correctness flag, not a
-//         timing statistic.
 struct RepeatedSearchOutcome {
     SearchResult result;
     BenchmarkStats timing;
@@ -44,9 +26,6 @@ struct RepeatedSearchOutcome {
 
 class SearchExperiment {
 private:
-    // ==========================================
-    // 1. AGE SEARCH LOGIC
-    // ==========================================
     static SearchResult linearSearchAgeArray(const Array& arr, int minAge, int maxAge, bool isSorted) {
         SearchResult res;
         auto start = std::chrono::high_resolution_clock::now();
@@ -61,10 +40,6 @@ private:
         return res;
     }
 
-    // Array direct indexing means every record examined is accessed exactly
-    // once to make its comparison decision, so comparisons and recordAccesses
-    // increment together throughout this function - there is no separate
-    // "skipped element" traversal cost, unlike the Linked List equivalent.
     static SearchResult jumpSearchAgeArray(const Array& arr, int minAge, int maxAge) {
         SearchResult res;
         if (arr.size == 0) return res;
@@ -102,9 +77,6 @@ private:
         return res;
     }
 
-    // ==========================================
-    // 2. CARE TYPE SEARCH LOGIC (Linear Only)
-    // ==========================================
     static SearchResult linearSearchCareTypeArray(const Array& arr, const std::string& targetType) {
         SearchResult res;
         auto start = std::chrono::high_resolution_clock::now();
@@ -118,9 +90,6 @@ private:
         return res;
     }
 
-    // ==========================================
-    // 3. VISIT DURATION SEARCH LOGIC (Threshold)
-    // ==========================================
     static SearchResult linearSearchDurationArray(const Array& arr, int threshold) {
         SearchResult res;
         auto start = std::chrono::high_resolution_clock::now();
@@ -171,9 +140,6 @@ private:
         return res;
     }
 
-    // ==========================================
-    // 1. BINARY SEARCH (Array)
-    // ==========================================
     static SearchResult binarySearchAgeArray(const Array& arr, int minAge, int maxAge) {
         SearchResult res;
         if (arr.size == 0) return res;
@@ -183,19 +149,17 @@ private:
         int high = arr.size - 1;
         int lowerBound = -1;
 
-        // Find the first occurrence (lower bound) of the target age
         while (low <= high) {
             int mid = low + (high - low) / 2;
             res.comparisons++;
             if (arr.data[mid].age >= minAge) {
                 lowerBound = mid;
-                high = mid - 1; // Search left half to ensure it is the very first match
+                high = mid - 1; 
             } else {
                 low = mid + 1;
             }
         }
 
-        // Linear scan from the discovered lower bound
         int curr = (lowerBound != -1) ? lowerBound : low;
         while (curr < arr.size && arr.data[curr].age <= maxAge) {
             res.comparisons++;
@@ -209,9 +173,6 @@ private:
         return res;
     }
 
-    // ==========================================
-    // 2. EXPONENTIAL SEARCH (Array)
-    // ==========================================
     static SearchResult exponentialSearchAgeArray(const Array& arr, int minAge, int maxAge) {
         SearchResult res;
         if (arr.size == 0) return res;
@@ -219,14 +180,12 @@ private:
 
         int bound = 1;
         
-        // Phase 1: Jump in powers of 2 to find the range
         while (bound < arr.size && arr.data[bound].age < minAge) {
             res.comparisons++;
             bound *= 2;
         }
         if (bound < arr.size) res.comparisons++;
 
-        // Phase 2: Binary Search within the discovered bounds
         int low = bound / 2;
         int high = std::min(bound, arr.size - 1);
         int lowerBound = -1;
@@ -255,9 +214,6 @@ private:
         return res;
     }
 
-    // ==========================================
-    // 3. INTERPOLATION SEARCH (Array)
-    // ==========================================
     static SearchResult interpolationSearchAgeArray(const Array& arr, int minAge, int maxAge) {
         SearchResult res;
         if (arr.size == 0) return res;
@@ -268,21 +224,20 @@ private:
         int lowerBound = -1;
 
         while (low <= high && minAge >= arr.data[low].age && minAge <= arr.data[high].age) {
-            res.comparisons += 2; // Checking boundaries
+            res.comparisons += 2; 
             
             if (low == high) {
                 if (arr.data[low].age >= minAge) lowerBound = low;
                 break;
             }
 
-            // Interpolation formula for direct index calculation
             double proportion = static_cast<double>(minAge - arr.data[low].age) / (arr.data[high].age - arr.data[low].age);
             int pos = low + static_cast<int>(proportion * (high - low));
 
             res.comparisons++;
             if (arr.data[pos].age >= minAge) {
                 lowerBound = pos;
-                high = pos - 1; // ensure we find the FIRST instance
+                high = pos - 1; 
             } else {
                 low = pos + 1;
             }
@@ -301,9 +256,6 @@ private:
         return res;
     }
 
-    // ==========================================
-    // UTILITY: Print Format
-    // ==========================================
     static void printHeader(const std::string& title) {
         std::cout << "\n+" << std::string(166, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(164) << title << " |\n";
@@ -340,10 +292,6 @@ private:
         }
     }
 
-    // Runs searchFunc SEARCH_WARMUP_RUNS times (discarded) then
-    // SEARCH_MEASURED_RUNS times (timed and validated). Deterministic values
-    // (matches/comparisons/recordAccesses) are taken from the first measured
-    // run and cross-checked against every subsequent measured run.
     template <typename SearchFunc>
     static RepeatedSearchOutcome runRepeatedSearch(SearchFunc searchFunc) {
         for (int w = 0; w < SEARCH_WARMUP_RUNS; ++w) {
@@ -376,22 +324,30 @@ public:
             return linearSearchAgeArray(originalArr, minAge, maxAge, false);
         }));
 
-        // Sorted copy is created and sorted ONCE, before repeated-search
-        // timing begins; sort cost stays excluded from search time.
         Array sortedArr(originalArr);
         MergeSort::sort(sortedArr, SortKey::Age);
 
-        printRow("Linear Search", "Array", "Sorted", linearSearchAgeArray(sortedArr, minAge, maxAge, true));
+        printRow("Linear Search", "Array", "Sorted", runRepeatedSearch([&]() {
+            return linearSearchAgeArray(sortedArr, minAge, maxAge, true);
+        }));
         
-        printRow("Jump Search", "Array", "Sorted", jumpSearchAgeArray(sortedArr, minAge, maxAge));
+        printRow("Jump Search", "Array", "Sorted", runRepeatedSearch([&]() {
+            return jumpSearchAgeArray(sortedArr, minAge, maxAge);
+        }));
         
-        printRow("Binary Search", "Array", "Sorted", binarySearchAgeArray(sortedArr, minAge, maxAge));
+        printRow("Binary Search", "Array", "Sorted", runRepeatedSearch([&]() {
+            return binarySearchAgeArray(sortedArr, minAge, maxAge);
+        }));
         
-        printRow("Exponen. Search", "Array", "Sorted", exponentialSearchAgeArray(sortedArr, minAge, maxAge));
+        printRow("Exponen. Search", "Array", "Sorted", runRepeatedSearch([&]() {
+            return exponentialSearchAgeArray(sortedArr, minAge, maxAge);
+        }));
         
-        printRow("Interpol. Search", "Array", "Sorted", interpolationSearchAgeArray(sortedArr, minAge, maxAge));
+        printRow("Interpol. Search", "Array", "Sorted", runRepeatedSearch([&]() {
+            return interpolationSearchAgeArray(sortedArr, minAge, maxAge);
+        }));
         
-        std::cout << "+" << std::string(93, '=') << "+\n";
+        std::cout << "+" << std::string(166, '=') << "+\n";
     }
 
     static void runCareTypeSearchExperiment(const Array& originalArr, const std::string& targetType, const std::string& facility) {

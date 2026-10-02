@@ -1,4 +1,5 @@
 #include "bubbleSort.h"
+#include "benchmarkStats.h"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -46,14 +47,11 @@ void BubbleSort::printPerformance(const Array& sourceArray, const std::string& f
 	std::cout << "+---------------------+---------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+\n";
 
 	for (SortField field : fields) {
-		// Warm-up runs: fresh copy each time, results discarded.
 		for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
 			Array warmupCopy = sourceArray;
 			BubbleSort::sort(warmupCopy, field);
 		}
 
-		// Measured runs: fresh copy each time, starting from the identical
-		// original ordering every run.
 		long long samples[SORT_MEASURED_RUNS];
 		SortMetrics firstMetrics;
 		bool metricsConsistent = true;
@@ -94,8 +92,6 @@ void BubbleSort::printPerformance(const Array& sourceArray, const std::string& f
 	std::cout << "+---------------------+---------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+\n";
 }
 
-SortMetrics BubbleSort::sort(Array& array) {
-	return sort(array, SortField::Age);
 SortMetrics BubbleSort::sort(Array& array) {
 	return sort(array, SortField::Age);
 }
