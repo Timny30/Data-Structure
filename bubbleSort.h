@@ -4,7 +4,6 @@
 #include <string>
 #include "patientRecord.h"
 #include "sortMetrics.h"
-#include "benchmarkStats.h"
 
 enum class SortField {
 	Age,

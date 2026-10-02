@@ -29,9 +29,6 @@ private:
         return false;
     }
 
-    // metrics.comparisons: one increment per left-vs-right sort-key evaluation.
-    // metrics.dataMovements: one increment per patientRecord placed into the
-    // merge buffer (includes leftover left/right copies).
     static void merge(patientRecord* data, patientRecord* buffer,
                       int first, int middle, int last, SortKey key, SortMetrics& metrics) {
         int left = first;
@@ -39,9 +36,8 @@ private:
         int output = first;
 
         while (left <= middle && right <= last) {
-            const bool rightComesFirst = comesBefore(data[right], data[left], key);
             metrics.comparisons++;
-            if (rightComesFirst) {
+            if (comesBefore(data[right], data[left], key)) {
                 buffer[output++] = data[right++];
             } else {
                 buffer[output++] = data[left++];
@@ -114,15 +110,11 @@ public:
         std::cout << "+" << std::string(150, '-') << "+\n";
 
         for (SortKey key : keys) {
-            // Warm-up runs: fresh copy each time, results discarded.
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
                 Array warmupCopy(array);
                 sort(warmupCopy, key);
             }
 
-            // Measured runs: fresh copy each time (copy construction is
-            // outside the timed region), starting from the identical
-            // original ordering every run.
             long long samples[SORT_MEASURED_RUNS];
             SortMetrics firstMetrics;
             bool metricsConsistent = true;

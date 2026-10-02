@@ -1,4 +1,5 @@
 #include "bubbleSort.h"
+#include "benchmarkStats.h"
 #include <chrono>
 #include <iomanip>
 #include <iostream>
@@ -46,14 +47,11 @@ void BubbleSort::printPerformance(const Array& sourceArray, const std::string& f
 	std::cout << "+---------------------+---------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+\n";
 
 	for (SortField field : fields) {
-		// Warm-up runs: fresh copy each time, results discarded.
 		for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
 			Array warmupCopy = sourceArray;
 			BubbleSort::sort(warmupCopy, field);
 		}
 
-		// Measured runs: fresh copy each time, starting from the identical
-		// original ordering every run.
 		long long samples[SORT_MEASURED_RUNS];
 		SortMetrics firstMetrics;
 		bool metricsConsistent = true;
@@ -99,18 +97,16 @@ SortMetrics BubbleSort::sort(Array& array) {
 }
 
 SortMetrics BubbleSort::sort(Array& array, SortField field) {
-	SortMetrics metrics;
+    SortMetrics metrics;
 	for (int end = array.size - 1; end > 0; --end) {
 		bool swapped = false;
 		for (int i = 0; i < end; ++i) {
-			// One comparison = one evaluation of whether two adjacent records should swap.
-			const bool needsSwap = shouldSwap(array.data[i], array.data[i + 1], field);
-			metrics.comparisons++;
-			if (needsSwap) {
+            metrics.comparisons++;
+			if (shouldSwap(array.data[i], array.data[i + 1], field)) {
 				patientRecord temporary = array.data[i];
 				array.data[i] = array.data[i + 1];
 				array.data[i + 1] = temporary;
-				metrics.dataMovements++; // one logical record swap
+                metrics.dataMovements++;
 				swapped = true;
 			}
 		}
@@ -118,5 +114,5 @@ SortMetrics BubbleSort::sort(Array& array, SortField field) {
 			break;
 		}
 	}
-	return metrics;
+    return metrics;
 }
