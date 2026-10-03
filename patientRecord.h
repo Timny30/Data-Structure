@@ -15,7 +15,7 @@ struct patientRecord {
         return lengthOfStay * baseCostPerHour * daysVisitPerYear;
     }
 
-    // Recategorize patients
+    // Categorize patients
     std::string getAgeGroup() const {
         if (age >= 0 && age <= 17) {
             return "0-17: Pediatrics & Adolescents";
