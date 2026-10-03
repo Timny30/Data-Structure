@@ -42,12 +42,10 @@ private:
     }
 
 public:
-    // Key name accessor matching MergeSort's interface
     static const char* keyName(SortField field) {
         return fieldName(field);
     }
 
-    // Single unified sort method with a default parameter covering both 1-arg and 2-arg calls
     static SortMetrics sort(Array& array, SortField field = SortField::Age) {
         SortMetrics metrics;
         if (array.size < 2) {
@@ -73,7 +71,7 @@ public:
         return metrics;
     }
 
-    // Performance runner matching MergeSort's table layout and width
+    // Performance runner
     static void printPerformance(const Array& array, const std::string& datasetName = "Dataset") {
         const SortField fields[] = {
             SortField::Age,
@@ -83,7 +81,7 @@ public:
 
         std::cout << "\n+" << std::string(150, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(148)
-                  << ("BUBBLE SORT PERFORMANCE (Array): " + datasetName) << "|\n";
+                  << ("BUBBLE SORT PERFORMANCE (Array): " + datasetName + " (3 WarmUp & 10 Measured)") << "|\n";
         std::cout << "+" << std::string(150, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(20) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
