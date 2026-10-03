@@ -6,8 +6,6 @@
 #include "bubbleSort.h"
 #include "searchExperiment.h"
 #include "linkedListMemory.h"
-#include "insertionSort.h"
-#include "selectionSort.h"
 #include "quickSort.h"
 
 // Helper function to time linked list-based sorting algorithms and track metrics
@@ -72,8 +70,6 @@ int main() {
     std::cout << "+" << std::string(93, '-') << "+\n";
 
     runComparativeBenchmark("Bubble Sort", "Visit Duration", list1, [](LinkedList& l) { return BubbleSort::sort(l, SortField::VisitDuration); });
-    runComparativeBenchmark("Insertion Sort", "Visit Duration", list1, [](LinkedList& l) { return InsertionSort::sort(l, SortKey::VisitDuration); });
-    runComparativeBenchmark("Selection Sort", "Visit Duration", list1, [](LinkedList& l) { return SelectionSort::sort(l, SortKey::VisitDuration); });
     runComparativeBenchmark("Merge Sort", "Visit Duration", list1, [](LinkedList& l) { return MergeSort::sort(l, SortKey::VisitDuration); });
     runComparativeBenchmark("Quick Sort", "Visit Duration", list1, [](LinkedList& l) { return QuickSort::sort(l, SortKey::VisitDuration); });
     

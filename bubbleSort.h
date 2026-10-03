@@ -52,9 +52,7 @@ public:
     }
 
     // metrics.comparisons: one increment per adjacent-node key evaluation.
-    // metrics.dataMovements: one increment per completed adjacent-node
-    // rearrangement (A->B becoming B->A), regardless of how many internal
-    // pointer assignments that relink required.
+    // metrics.dataMovements: one increment per completed adjacent-node rearrangement (A->B becoming B->A)
     static SortMetrics sort(LinkedList& list, SortField field) {
         SortMetrics metrics;
         if (list.head == nullptr || list.head->next == nullptr) {
@@ -116,7 +114,7 @@ public:
 
         std::cout << "\n+" << std::string(158, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(156)
-                  << ("BUBBLE SORT PERFORMANCE: " + facilityName) << " |\n";
+                  << ("BUBBLE SORT PERFORMANCE: " + facilityName + " (3 WarmUp & 10 Measured)") << " |\n";
         std::cout << "+" << std::string(158, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(22) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
@@ -130,14 +128,13 @@ public:
         std::cout << "+" << std::string(158, '-') << "+\n";
 
         for (SortField field : fields) {
-            // Warm-up runs: fresh deep copy each time, results discarded.
+            // Warm-up runs
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
                 LinkedList warmupCopy = sourceList;
                 sort(warmupCopy, field);
             }
 
-            // Measured runs: fresh deep copy each time, starting from the
-            // identical original ordering every run.
+            // Measured runs
             long long samples[SORT_MEASURED_RUNS];
             SortMetrics firstMetrics;
             bool metricsConsistent = true;
@@ -174,12 +171,7 @@ public:
                           << fieldName(field) << "\n";
             }
         }
-
-        std::cout << "+" << std::string(158, '-') << "+\n";
-        std::cout << "| " << std::left << std::setw(156)
-                  << "Storage: Singly linked list O(n) plus one next pointer per node."
-                  << " |\n";
-        std::cout << "+" << std::string(158, '=') << "+\n";
+		std::cout << "+" << std::string(158, '=') << "+\n";
     }
 };
 
