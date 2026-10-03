@@ -5,8 +5,6 @@
 #include "calculation.h"
 #include "mergeSort.h"
 #include "bubbleSort.h"
-#include "insertionSortArray.h"
-#include "selectionSortArray.h"
 #include "quickSortArray.h"
 #include "searchExperiment.h"
 #include "sortMetrics.h"
@@ -63,8 +61,6 @@ int main() {
     std::cout << "+" << std::string(93, '-') << "+\n";
 
     runArrayBenchmark("Bubble Sort", "Visit Duration", arr1, [](Array& a) { return BubbleSort::sort(a, SortField::VisitDuration); });
-    runArrayBenchmark("Insertion Sort", "Visit Duration", arr1, [](Array& a) { return InsertionSortArray::sort(a, SortKey::VisitDuration); });
-    runArrayBenchmark("Selection Sort", "Visit Duration", arr1, [](Array& a) { return SelectionSortArray::sort(a, SortKey::VisitDuration); });
     runArrayBenchmark("Merge Sort", "Visit Duration", arr1, [](Array& a) { return MergeSort::sort(a, SortKey::VisitDuration); });
     runArrayBenchmark("Quick Sort", "Visit Duration", arr1, [](Array& a) { return QuickSortArray::sort(a, SortKey::VisitDuration); });
     
