@@ -80,10 +80,10 @@ int main() {
     std::cout << "+" << std::string(93, '=') << "+\n";
 
     // =====================================================================
-    // EXPERIMENT B: DATA DISTRIBUTION SENSITIVITY (Same Algorithm, Different Sets)
+    // DATA DISTRIBUTION SENSITIVITY (Same Algorithm, Different Sets)
     // =====================================================================
     std::cout << "\n+" << std::string(93, '=') << "+\n";
-    std::cout << "| " << std::left << std::setw(91) << "EXPERIMENT B: QUICK SORT DATA DISTRIBUTION SENSITIVITY (Linked List)" << " |\n";
+    std::cout << "| " << std::left << std::setw(91) << "QUICK SORT DATA DISTRIBUTION SENSITIVITY (Linked List)" << " |\n";
     std::cout << "+" << std::string(93, '-') << "+\n";
     std::cout << "| " << std::left << std::setw(15) << "Dataset"
               << "| " << std::left << std::setw(20) << "Sort Key"
