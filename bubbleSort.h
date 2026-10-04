@@ -101,10 +101,6 @@ public:
         return metrics;
     }
 
-    static void printPerformance(const LinkedList& sourceList) {
-        printPerformance(sourceList, "Dataset");
-    }
-
     static void printPerformance(const LinkedList& sourceList, const std::string& facilityName) {
         const SortField fields[] = {
             SortField::Age,
@@ -112,20 +108,18 @@ public:
             SortField::TotalMedicalCost
         };
 
-        std::cout << "\n+" << std::string(158, '=') << "+\n";
-        std::cout << "| " << std::left << std::setw(156)
-                  << ("BUBBLE SORT PERFORMANCE: " + facilityName + " (3 WarmUp & 10 Measured)") << " |\n";
-        std::cout << "+" << std::string(158, '-') << "+\n";
+        std::cout << "\n+" << std::string(112, '=') << "+\n";
+        std::cout << "| " << std::left << std::setw(110)
+                  << ("BUBBLE SORT PERFORMANCE (LinkedList): " + facilityName + " (3 WarmUp & 10 Measured)") << " |\n";
+        std::cout << "+" << std::string(112, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(22) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
                   << std::setw(16) << "Average (ns)"
                   << std::setw(12) << "Min (ns)"
                   << std::setw(12) << "Max (ns)"
                   << std::setw(16) << "Comparisons"
-                  << std::setw(18) << "Data Movements"
-                  << std::setw(20) << "Time Complexity"
-                  << std::setw(20) << "Auxiliary Memory" << " |\n";
-        std::cout << "+" << std::string(158, '-') << "+\n";
+                  << std::setw(18) << "Data Movements" << " |\n";
+        std::cout << "+" << std::string(112, '-') << "+\n";
 
         for (SortField field : fields) {
             // Warm-up runs
@@ -163,15 +157,13 @@ public:
                       << std::setw(12) << stats.minTimeNs
                       << std::setw(12) << stats.maxTimeNs
                       << std::setw(16) << firstMetrics.comparisons
-                      << std::setw(18) << firstMetrics.dataMovements
-                      << std::setw(20) << "O(n^2)"
-                      << std::setw(20) << "O(1)" << " |\n";
+                      << std::setw(18) << firstMetrics.dataMovements << " |\n";
             if (!metricsConsistent) {
                 std::cout << "| WARNING: comparisons/dataMovements differed across measured runs for "
                           << fieldName(field) << "\n";
             }
         }
-		std::cout << "+" << std::string(158, '=') << "+\n";
+        std::cout << "+" << std::string(112, '=') << "+\n";
     }
 };
 
