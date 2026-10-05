@@ -46,6 +46,10 @@ public:
         return fieldName(field);
     }
 
+    static size_t calculateMemoryUsage(const Array& array) {
+        return sizeof(Array) + (sizeof(patientRecord) * static_cast<size_t>(array.size));
+    }
+
     static SortMetrics sort(Array& array, SortField field = SortField::Age) {
         SortMetrics metrics;
         if (array.size < 2) {
@@ -79,18 +83,21 @@ public:
             SortField::TotalMedicalCost
         };
 
-        std::cout << "\n+" << std::string(110, '=') << "+\n";
-        std::cout << "| " << std::left << std::setw(108)
+        const size_t memoryUsage = calculateMemoryUsage(array);
+
+        std::cout << "\n+" << std::string(126, '=') << "+\n";
+        std::cout << "| " << std::left << std::setw(124)
                   << ("BUBBLE SORT PERFORMANCE (Array): " + datasetName + " (3 WarmUp & 10 Measured)") << " |\n";
-        std::cout << "+" << std::string(110, '-') << "+\n";
+        std::cout << "+" << std::string(126, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(20) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
                   << std::setw(16) << "Average (ns)"
                   << std::setw(12) << "Min (ns)"
                   << std::setw(12) << "Max (ns)"
                   << std::setw(16) << "Comparisons"
-                  << std::setw(18) << "Data Movements" << " |\n";
-        std::cout << "+" << std::string(110, '-') << "+\n";
+                  << std::setw(18) << "Data Movements"
+                  << std::setw(16) << "Memory (Bytes)" << " |\n";
+        std::cout << "+" << std::string(126, '-') << "+\n";
 
         for (SortField field : fields) {
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
@@ -126,13 +133,14 @@ public:
                       << std::setw(12) << stats.minTimeNs
                       << std::setw(12) << stats.maxTimeNs
                       << std::setw(16) << firstMetrics.comparisons
-                      << std::setw(18) << firstMetrics.dataMovements << " |\n";
+                      << std::setw(18) << firstMetrics.dataMovements
+                      << std::setw(16) << memoryUsage << " |\n";
             if (!metricsConsistent) {
                 std::cout << "| WARNING: comparisons/dataMovements differed across measured runs for "
                           << fieldName(field) << "\n";
             }
         }
-        std::cout << "+" << std::string(110, '=') << "+\n";
+        std::cout << "+" << std::string(126, '=') << "+\n";
     }
 };
 
