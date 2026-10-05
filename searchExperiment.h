@@ -90,6 +90,17 @@ private:
         return res;
     }
 
+    // Dataset PREPARATION only for the Care Type unsorted-vs-sorted Linear
+    // Search experiment - not a measured/benchmarked sorting algorithm, not
+    // counted anywhere, and never timed. Sorts a copy's records ascending by
+    // careType (lexicographical) in place on the raw backing array.
+    static void sortCareTypeArrayCopy(Array& arr) {
+        std::sort(arr.data, arr.data + arr.size,
+                  [](const patientRecord& a, const patientRecord& b) {
+                      return a.careType < b.careType;
+                  });
+    }
+
     static SearchResult linearSearchDurationArray(const Array& arr, int threshold) {
         SearchResult res;
         auto start = std::chrono::high_resolution_clock::now();
@@ -357,8 +368,21 @@ public:
             return linearSearchCareTypeArray(originalArr, targetType);
         }));
 
+        // Sorted-by-careType copy is prepared ONCE, before repeated-search
+        // timing begins; preparation cost stays excluded from search time.
+        // The same linearSearchCareTypeArray function (no early-termination,
+        // no changed comparison/access definitions) is reused unmodified -
+        // this experiment isolates the effect of data ordering alone.
+        Array careTypeSortedArr(originalArr);
+        sortCareTypeArrayCopy(careTypeSortedArr);
+
+        printRow("Linear Search", "Array", "Sorted", runRepeatedSearch([&]() {
+            return linearSearchCareTypeArray(careTypeSortedArr, targetType);
+        }));
+
         std::cout << "+" << std::string(166, '-') << "+\n";
-        std::cout << "| Note: Jump Search skipped because dataset is not sorted by non-numerical CareType string.     |\n";
+        std::cout << "| Note: Care Type experiment evaluates Linear Search only; Jump Search is\n";
+        std::cout << "| not implemented for string-based Care Type searching.\n";
         std::cout << "+" << std::string(166, '=') << "+\n";
     }
 

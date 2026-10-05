@@ -81,12 +81,6 @@ public:
 	}
 };
 
-struct node { // build via chaining data points across memory
-	patientRecord data;
-	node* next; // map the linkedList to memory 
-	node(const patientRecord& record) : data(record), next(nullptr) {}
-};
-
 Array toArray(const std::string& filename);
 
 #endif
