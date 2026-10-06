@@ -94,20 +94,22 @@ public:
             SortKey::Age, SortKey::VisitDuration, SortKey::TotalMedicalCost
         };
 
-        std::cout << "\n+" << std::string(150, '=') << "+\n";
-        std::cout << "| " << std::left << std::setw(148)
+        // Expanded border width from 150 to 168 to accommodate the new column
+        std::cout << "\n+" << std::string(168, '=') << "+\n";
+        std::cout << "| " << std::left << std::setw(166)
                   << ("MERGE SORT PERFORMANCE (Array): " + datasetName) << "|\n";
-        std::cout << "+" << std::string(150, '-') << "+\n";
+        std::cout << "+" << std::string(168, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(20) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
-                  << std::setw(16) << "Average (ns)"
+                  << std::setw(16) << "Average (ns)"S
                   << std::setw(12) << "Min (ns)"
                   << std::setw(12) << "Max (ns)"
                   << std::setw(16) << "Comparisons"
                   << std::setw(18) << "Data Movements"
                   << std::setw(16) << "Time Complexity"
-                  << std::setw(18) << "Auxiliary Memory" << " |\n";
-        std::cout << "+" << std::string(150, '-') << "+\n";
+                  << std::setw(18) << "Auxiliary Memory" 
+                  << std::setw(18) << "Memory Usage (B)" << " |\n";
+        std::cout << "+" << std::string(168, '-') << "+\n";
 
         for (SortKey key : keys) {
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
@@ -136,6 +138,9 @@ public:
             }
 
             const BenchmarkStats stats = computeBenchmarkStats(samples, SORT_MEASURED_RUNS);
+            
+            // Calculate total memory: Original array metadata + original array data + auxiliary buffer
+            size_t totalMemory = sizeof(Array) + (2 * array.size * sizeof(patientRecord));
 
             std::cout << "| " << std::left << std::setw(20) << keyName(key)
                       << std::right << std::setw(14) << stats.medianTimeNs
@@ -145,13 +150,15 @@ public:
                       << std::setw(16) << firstMetrics.comparisons
                       << std::setw(18) << firstMetrics.dataMovements
                       << std::setw(16) << "O(n log n)"
-                      << std::setw(18) << "O(n)" << " |\n";
+                      << std::setw(18) << "O(n)" 
+                      << std::setw(18) << totalMemory << " |\n";
+                      
             if (!metricsConsistent) {
                 std::cout << "| WARNING: comparisons/dataMovements differed across measured runs for "
                           << keyName(key) << "\n";
             }
         }
-        std::cout << "+" << std::string(150, '=') << "+\n";
+        std::cout << "+" << std::string(168, '=') << "+\n";
     }
 };
 
