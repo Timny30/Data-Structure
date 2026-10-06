@@ -47,14 +47,16 @@ private:
     }
 
 public:
+    static size_t calculateMemoryUsage(const LinkedList& list) {
+        return sizeof(LinkedList) + (sizeof(node) * static_cast<size_t>(linkedListSize(list)));
+    }
+
     static SortMetrics sort(LinkedList& list) {
         return sort(list, SortField::Age);
     }
 
     // metrics.comparisons: one increment per adjacent-node key evaluation.
-    // metrics.dataMovements: one increment per completed adjacent-node
-    // rearrangement (A->B becoming B->A), regardless of how many internal
-    // pointer assignments that relink required.
+    // metrics.dataMovements: one increment per completed adjacent-node rearrangement (A->B becoming B->A)
     static SortMetrics sort(LinkedList& list, SortField field) {
         SortMetrics metrics;
         if (list.head == nullptr || list.head->next == nullptr) {
@@ -103,10 +105,6 @@ public:
         return metrics;
     }
 
-    static void printPerformance(const LinkedList& sourceList) {
-        printPerformance(sourceList, "Dataset");
-    }
-
     static void printPerformance(const LinkedList& sourceList, const std::string& facilityName) {
         const SortField fields[] = {
             SortField::Age,
@@ -114,10 +112,12 @@ public:
             SortField::TotalMedicalCost
         };
 
-        std::cout << "\n+" << std::string(158, '=') << "+\n";
-        std::cout << "| " << std::left << std::setw(156)
-                  << ("BUBBLE SORT PERFORMANCE: " + facilityName) << " |\n";
-        std::cout << "+" << std::string(158, '-') << "+\n";
+        const size_t memoryUsage = calculateMemoryUsage(sourceList);
+
+        std::cout << "\n+" << std::string(128, '=') << "+\n";
+        std::cout << "| " << std::left << std::setw(126)
+                  << ("BUBBLE SORT PERFORMANCE (LinkedList): " + facilityName + " (3 WarmUp & 10 Measured)") << " |\n";
+        std::cout << "+" << std::string(128, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(22) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
                   << std::setw(16) << "Average (ns)"
@@ -125,19 +125,17 @@ public:
                   << std::setw(12) << "Max (ns)"
                   << std::setw(16) << "Comparisons"
                   << std::setw(18) << "Data Movements"
-                  << std::setw(20) << "Time Complexity"
-                  << std::setw(20) << "Auxiliary Memory" << " |\n";
-        std::cout << "+" << std::string(158, '-') << "+\n";
+                  << std::setw(16) << "Memory (Bytes)" << " |\n";
+        std::cout << "+" << std::string(128, '-') << "+\n";
 
         for (SortField field : fields) {
-            // Warm-up runs: fresh deep copy each time, results discarded.
+            // Warm-up runs
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
                 LinkedList warmupCopy = sourceList;
                 sort(warmupCopy, field);
             }
 
-            // Measured runs: fresh deep copy each time, starting from the
-            // identical original ordering every run.
+            // Measured runs
             long long samples[SORT_MEASURED_RUNS];
             SortMetrics firstMetrics;
             bool metricsConsistent = true;
@@ -167,19 +165,13 @@ public:
                       << std::setw(12) << stats.maxTimeNs
                       << std::setw(16) << firstMetrics.comparisons
                       << std::setw(18) << firstMetrics.dataMovements
-                      << std::setw(20) << "O(n^2)"
-                      << std::setw(20) << "O(1)" << " |\n";
+                      << std::setw(16) << memoryUsage << " |\n";
             if (!metricsConsistent) {
                 std::cout << "| WARNING: comparisons/dataMovements differed across measured runs for "
                           << fieldName(field) << "\n";
             }
         }
-
-        std::cout << "+" << std::string(158, '-') << "+\n";
-        std::cout << "| " << std::left << std::setw(156)
-                  << "Storage: Singly linked list O(n) plus one next pointer per node."
-                  << " |\n";
-        std::cout << "+" << std::string(158, '=') << "+\n";
+        std::cout << "+" << std::string(128, '=') << "+\n";
     }
 };
 

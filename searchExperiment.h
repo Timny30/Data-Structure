@@ -149,6 +149,29 @@ private:
         return res;
     }
 
+    // Dataset PREPARATION only for the Care Type unsorted-vs-sorted Linear
+    // Search experiment - not a measured/benchmarked sorting algorithm, not
+    // counted anywhere, and never timed. Sorts a copy's node data ascending
+    // by careType (lexicographical) via adjacent-node data swaps, keeping it
+    // a genuine singly linked list (no array conversion).
+    static void sortCareTypeListCopy(LinkedList& list) {
+        if (list.head == nullptr) return;
+        bool swapped;
+        do {
+            swapped = false;
+            node* curr = list.head;
+            while (curr->next != nullptr) {
+                if (curr->data.careType > curr->next->data.careType) {
+                    patientRecord temp = curr->data;
+                    curr->data = curr->next->data;
+                    curr->next->data = temp;
+                    swapped = true;
+                }
+                curr = curr->next;
+            }
+        } while (swapped);
+    }
+
     // ==========================================
     // 3. VISIT DURATION SEARCH LOGIC (Threshold)
     // ==========================================
@@ -525,8 +548,21 @@ public:
             return linearSearchCareTypeList(originalList, targetType);
         }));
 
+        // Sorted-by-careType copy is prepared ONCE, before repeated-search
+        // timing begins; preparation cost stays excluded from search time.
+        // The same linearSearchCareTypeList function (no early-termination,
+        // no changed comparison/access definitions) is reused unmodified -
+        // this experiment isolates the effect of data ordering alone.
+        LinkedList careTypeSortedList(originalList);
+        sortCareTypeListCopy(careTypeSortedList);
+
+        printRow("Linear Search", "Singly List", "Sorted", runRepeatedSearch([&]() {
+            return linearSearchCareTypeList(careTypeSortedList, targetType);
+        }));
+
         std::cout << "+" << std::string(166, '-') << "+\n";
-        std::cout << "| Note: Jump Search skipped because dataset is not sorted by non-numerical CareType string.     |\n";
+        std::cout << "| Note: Care Type experiment evaluates Linear Search only; Jump Search is\n";
+        std::cout << "| not implemented for string-based Care Type searching.\n";
         std::cout << "+" << std::string(166, '=') << "+\n";
     }
 
