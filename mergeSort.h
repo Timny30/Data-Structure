@@ -125,7 +125,7 @@ public:
                   << std::setw(18) << "Memory Usage (B)" << " |\n";
         std::cout << "+" << std::string(176, '-') << "+\n";
 
-        // Count nodes to determine the size of the dataset
+        // Count nodes to determine the size of the dataset 
         size_t nodeCount = 0;
         node* current = list.head;
         while (current != nullptr) {
