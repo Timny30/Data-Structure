@@ -3,6 +3,7 @@
 
 #include "patientRecord.h"
 #include "mergeSort.h"
+#include "bubbleSort.h"
 #include "benchmarkStats.h"
 #include <iostream>
 #include <iomanip>
@@ -15,6 +16,11 @@ struct SearchResult {
     long long comparisons = 0;
     long long recordAccesses = 0;
     long long durationNanosec = 0;
+    // Structural data-structure memory footprint (bytes), reused from
+    // BubbleSort::calculateMemoryUsage(...) - only populated by experiments
+    // that measure it (currently the Care Type experiment); 0 otherwise.
+    std::size_t memoryBytes = 0;
+    // Algorithm auxiliary-space complexity (a fixed label, not a byte count).
     std::string memoryOverhead = "O(1)";
 };
 
@@ -303,6 +309,50 @@ private:
         }
     }
 
+    // Dedicated header/row for the Care Type experiment only (Age/Duration
+    // experiments keep using printHeader/printRow unchanged). Adds the
+    // Memory (Bytes) structural footprint column and renames "Mem Ovhd" to
+    // "Aux Space" for clarity - the O(1) meaning itself is unchanged, it
+    // still represents Linear Search's algorithm auxiliary-space complexity,
+    // not a measured byte value.
+    static void printCareTypeHeader(const std::string& title) {
+        std::cout << "\n+" << std::string(182, '=') << "+\n";
+        std::cout << "| " << std::left << std::setw(180) << title << " |\n";
+        std::cout << "+" << std::string(182, '-') << "+\n";
+        std::cout << "| " << std::left << std::setw(15) << "Algorithm"
+                  << "| " << std::setw(15) << "Data Struct"
+                  << "| " << std::setw(10) << "State"
+                  << "| " << std::setw(8) << "Matches"
+                  << "| " << std::setw(12) << "Comparisons"
+                  << "| " << std::setw(16) << "Record Accesses"
+                  << "| " << std::setw(12) << "Median (ns)"
+                  << "| " << std::setw(14) << "Average (ns)"
+                  << "| " << std::setw(10) << "Min (ns)"
+                  << "| " << std::setw(10) << "Max (ns)"
+                  << "| " << std::setw(16) << "Memory (Bytes)"
+                  << "| " << std::setw(12) << "Aux Space" << " |\n";
+        std::cout << "+" << std::string(182, '-') << "+\n";
+    }
+
+    static void printCareTypeRow(const std::string& algo, const std::string& ds, const std::string& state, const RepeatedSearchOutcome& outcome) {
+        std::cout << "| " << std::left << std::setw(15) << algo
+                  << "| " << std::setw(15) << ds
+                  << "| " << std::setw(10) << state
+                  << "| " << std::right << std::setw(8) << outcome.result.matchesFound
+                  << "| " << std::setw(12) << outcome.result.comparisons
+                  << "| " << std::setw(16) << outcome.result.recordAccesses
+                  << "| " << std::setw(12) << outcome.timing.medianTimeNs
+                  << "| " << std::setw(14) << std::fixed << std::setprecision(1) << outcome.timing.averageTimeNs
+                  << "| " << std::setw(10) << outcome.timing.minTimeNs
+                  << "| " << std::setw(10) << outcome.timing.maxTimeNs
+                  << "| " << std::setw(16) << outcome.result.memoryBytes
+                  << "| " << std::setw(12) << outcome.result.memoryOverhead << " |\n";
+        if (!outcome.metricsConsistent) {
+            std::cout << "| WARNING: matches/comparisons/recordAccesses differed across measured runs for "
+                      << algo << "\n";
+        }
+    }
+
     template <typename SearchFunc>
     static RepeatedSearchOutcome runRepeatedSearch(SearchFunc searchFunc) {
         for (int w = 0; w < SEARCH_WARMUP_RUNS; ++w) {
@@ -362,11 +412,17 @@ public:
     }
 
     static void runCareTypeSearchExperiment(const Array& originalArr, const std::string& targetType, const std::string& facility) {
-        printHeader("SEARCH EXPERIMENT: " + facility + " (Care Type: " + targetType + ")");
+        printCareTypeHeader("SEARCH EXPERIMENT: " + facility + " (Care Type: " + targetType + ")");
 
-        printRow("Linear Search", "Array", "Unsorted", runRepeatedSearch([&]() {
+        RepeatedSearchOutcome unsortedOutcome = runRepeatedSearch([&]() {
             return linearSearchCareTypeArray(originalArr, targetType);
-        }));
+        });
+        // Structural memory footprint computed AFTER repeated-search timing
+        // completes - never inside the timed region - reusing the existing
+        // BubbleSort::calculateMemoryUsage(const Array&) formula rather than
+        // introducing a new/duplicated memory calculation.
+        unsortedOutcome.result.memoryBytes = BubbleSort::calculateMemoryUsage(originalArr);
+        printCareTypeRow("Linear Search", "Array", "Unsorted", unsortedOutcome);
 
         // Sorted-by-careType copy is prepared ONCE, before repeated-search
         // timing begins; preparation cost stays excluded from search time.
@@ -376,14 +432,16 @@ public:
         Array careTypeSortedArr(originalArr);
         sortCareTypeArrayCopy(careTypeSortedArr);
 
-        printRow("Linear Search", "Array", "Sorted", runRepeatedSearch([&]() {
+        RepeatedSearchOutcome sortedOutcome = runRepeatedSearch([&]() {
             return linearSearchCareTypeArray(careTypeSortedArr, targetType);
-        }));
+        });
+        sortedOutcome.result.memoryBytes = BubbleSort::calculateMemoryUsage(careTypeSortedArr);
+        printCareTypeRow("Linear Search", "Array", "Sorted", sortedOutcome);
 
-        std::cout << "+" << std::string(166, '-') << "+\n";
+        std::cout << "+" << std::string(182, '-') << "+\n";
         std::cout << "| Note: Care Type experiment evaluates Linear Search only; Jump Search is\n";
         std::cout << "| not implemented for string-based Care Type searching.\n";
-        std::cout << "+" << std::string(166, '=') << "+\n";
+        std::cout << "+" << std::string(182, '=') << "+\n";
     }
 
     static void runDurationSearchExperiment(const Array& originalArr, int threshold, const std::string& facility) {
