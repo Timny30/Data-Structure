@@ -108,10 +108,11 @@ public:
             SortKey::Age, SortKey::VisitDuration, SortKey::TotalMedicalCost
         };
 
-        std::cout << "\n+" << std::string(158, '=') << "+\n";
-        std::cout << "| " << std::left << std::setw(156)
+        // Expanded border width from 158 to 176 to accommodate the new column
+        std::cout << "\n+" << std::string(176, '=') << "+\n";
+        std::cout << "| " << std::left << std::setw(174)
                   << ("MERGE SORT PERFORMANCE: " + datasetName) << " |\n";
-        std::cout << "+" << std::string(158, '-') << "+\n";
+        std::cout << "+" << std::string(176, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(22) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
                   << std::setw(16) << "Average (ns)"
@@ -120,8 +121,17 @@ public:
                   << std::setw(16) << "Comparisons"
                   << std::setw(18) << "Data Movements"
                   << std::setw(20) << "Time Complexity"
-                  << std::setw(20) << "Auxiliary Memory" << " |\n";
-        std::cout << "+" << std::string(158, '-') << "+\n";
+                  << std::setw(20) << "Auxiliary Memory" 
+                  << std::setw(18) << "Memory Usage (B)" << " |\n";
+        std::cout << "+" << std::string(176, '-') << "+\n";
+
+        // Count nodes to determine the size of the dataset
+        size_t nodeCount = 0;
+        node* current = list.head;
+        while (current != nullptr) {
+            nodeCount++;
+            current = current->next;
+        }
 
         for (SortKey key : keys) {
             // Warm-up runs: fresh deep copy each time, results discarded.
@@ -155,6 +165,10 @@ public:
 
             const BenchmarkStats stats = computeBenchmarkStats(samples, SORT_MEASURED_RUNS);
 
+            // Calculate total memory: List metadata + (node count * size of each node)
+            // No secondary buffer is added because Linked List Merge Sort runs in-place
+            size_t totalMemory = sizeof(LinkedList) + (nodeCount * sizeof(node));
+
             std::cout << "| " << std::left << std::setw(22) << keyName(key)
                       << std::right << std::setw(14) << stats.medianTimeNs
                       << std::setw(16) << std::fixed << std::setprecision(1) << stats.averageTimeNs
@@ -163,18 +177,20 @@ public:
                       << std::setw(16) << firstMetrics.comparisons
                       << std::setw(18) << firstMetrics.dataMovements
                       << std::setw(20) << "O(n log n)"
-                      << std::setw(20) << "O(log n)" << " |\n";
+                      << std::setw(20) << "O(log n)" 
+                      << std::setw(18) << totalMemory << " |\n";
+                      
             if (!metricsConsistent) {
                 std::cout << "| WARNING: comparisons/dataMovements differed across measured runs for "
                           << keyName(key) << "\n";
             }
         }
 
-        std::cout << "+" << std::string(158, '-') << "+\n";
-        std::cout << "| " << std::left << std::setw(156)
+        std::cout << "+" << std::string(176, '-') << "+\n";
+        std::cout << "| " << std::left << std::setw(174)
                   << "Storage: Singly linked list O(n) plus one next pointer per node."
                   << " |\n";
-        std::cout << "+" << std::string(158, '=') << "+\n";
+        std::cout << "+" << std::string(176, '=') << "+\n";
     }
 };
 
