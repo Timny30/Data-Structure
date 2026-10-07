@@ -75,7 +75,6 @@ public:
         return metrics;
     }
 
-    // Performance runner
     static void printPerformance(const Array& array, const std::string& datasetName = "Dataset") {
         const SortField fields[] = {
             SortField::Age,

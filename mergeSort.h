@@ -94,14 +94,13 @@ public:
             SortKey::Age, SortKey::VisitDuration, SortKey::TotalMedicalCost
         };
 
-        // Expanded border width from 150 to 168 to accommodate the new column
         std::cout << "\n+" << std::string(168, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(166)
                   << ("MERGE SORT PERFORMANCE (Array): " + datasetName) << "|\n";
         std::cout << "+" << std::string(168, '-') << "+\n";
         std::cout << "| " << std::left << std::setw(20) << "Sort Key"
                   << std::right << std::setw(14) << "Median (ns)"
-                  << std::setw(16) << "Average (ns)"S
+                  << std::setw(16) << "Average (ns)"
                   << std::setw(12) << "Min (ns)"
                   << std::setw(12) << "Max (ns)"
                   << std::setw(16) << "Comparisons"
@@ -139,7 +138,6 @@ public:
 
             const BenchmarkStats stats = computeBenchmarkStats(samples, SORT_MEASURED_RUNS);
             
-            // Calculate total memory: Original array metadata + original array data + auxiliary buffer
             size_t totalMemory = sizeof(Array) + (2 * array.size * sizeof(patientRecord));
 
             std::cout << "| " << std::left << std::setw(20) << keyName(key)

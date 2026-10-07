@@ -6,17 +6,6 @@
 #include <iomanip>
 #include <string>
 
-// Estimated structural memory footprint for the custom Array.
-//
-// This is a structural estimate based on sizeof() only: it accounts for the
-// Array object itself plus its raw patientRecord backing store (split into
-// live vs unused capacity). It does NOT represent exact total process memory,
-// because patientRecord contains std::string fields (patientID, careType)
-// whose dynamic/internal heap storage and allocator overhead are not visible
-// to sizeof() and are therefore not included here.
-//
-// (capacity - size) can never be negative: Array only grows its capacity
-// (never shrinks it), so capacity >= size is always guaranteed by push_back().
 inline void printArrayMemoryFootprint(const Array& array, const std::string& facilityName) {
     const size_t recordSize = sizeof(patientRecord);
     const size_t structuralMemory = sizeof(Array) + static_cast<size_t>(array.capacity) * recordSize;

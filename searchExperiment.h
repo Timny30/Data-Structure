@@ -16,11 +16,9 @@ struct SearchResult {
     long long comparisons = 0;
     long long recordAccesses = 0;
     long long durationNanosec = 0;
-    // Structural data-structure memory footprint (bytes), reused from
-    // BubbleSort::calculateMemoryUsage(...) - only populated by experiments
-    // that measure it (currently the Care Type experiment); 0 otherwise.
+
     std::size_t memoryBytes = 0;
-    // Algorithm auxiliary-space complexity (a fixed label, not a byte count).
+
     std::string memoryOverhead = "O(1)";
 };
 
@@ -96,10 +94,6 @@ private:
         return res;
     }
 
-    // Dataset PREPARATION only for the Care Type unsorted-vs-sorted Linear
-    // Search experiment - not a measured/benchmarked sorting algorithm, not
-    // counted anywhere, and never timed. Sorts a copy's records ascending by
-    // careType (lexicographical) in place on the raw backing array.
     static void sortCareTypeArrayCopy(Array& arr) {
         std::sort(arr.data, arr.data + arr.size,
                   [](const patientRecord& a, const patientRecord& b) {
@@ -309,12 +303,6 @@ private:
         }
     }
 
-    // Dedicated header/row for the Care Type experiment only (Age/Duration
-    // experiments keep using printHeader/printRow unchanged). Adds the
-    // Memory (Bytes) structural footprint column and renames "Mem Ovhd" to
-    // "Aux Space" for clarity - the O(1) meaning itself is unchanged, it
-    // still represents Linear Search's algorithm auxiliary-space complexity,
-    // not a measured byte value.
     static void printCareTypeHeader(const std::string& title) {
         std::cout << "\n+" << std::string(182, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(180) << title << " |\n";
@@ -417,18 +405,10 @@ public:
         RepeatedSearchOutcome unsortedOutcome = runRepeatedSearch([&]() {
             return linearSearchCareTypeArray(originalArr, targetType);
         });
-        // Structural memory footprint computed AFTER repeated-search timing
-        // completes - never inside the timed region - reusing the existing
-        // BubbleSort::calculateMemoryUsage(const Array&) formula rather than
-        // introducing a new/duplicated memory calculation.
+
         unsortedOutcome.result.memoryBytes = BubbleSort::calculateMemoryUsage(originalArr);
         printCareTypeRow("Linear Search", "Array", "Unsorted", unsortedOutcome);
 
-        // Sorted-by-careType copy is prepared ONCE, before repeated-search
-        // timing begins; preparation cost stays excluded from search time.
-        // The same linearSearchCareTypeArray function (no early-termination,
-        // no changed comparison/access definitions) is reused unmodified -
-        // this experiment isolates the effect of data ordering alone.
         Array careTypeSortedArr(originalArr);
         sortCareTypeArrayCopy(careTypeSortedArr);
 

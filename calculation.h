@@ -99,7 +99,6 @@ inline void initSummaryGroups(DatasetSummary& summary) {
     summary.ageGroups[5].groupName = "Unknown Age Group";
 }
 
-// Analyze using custom Array
 inline DatasetSummary analyzeDataset(const Array& arr, const std::string& facilityName) {
     DatasetSummary summary;
     summary.facilityName = facilityName;

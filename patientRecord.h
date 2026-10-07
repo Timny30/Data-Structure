@@ -1,24 +1,20 @@
-// Date created: 2024-06-15
-// Date last modified: 2024-06-15
 
 #ifndef DATALOADER_H
 #define DATALOADER_H
 
 #include <string>
 
-struct patientRecord { // data container: containing dataset patient information
+struct patientRecord {
 	std::string patientID;
 	int age;
 	std::string careType;
 	int lengthOfStay;
 	double baseCostPerHour;
 	int daysVisitPerYear;
-	// Calculates total medical cost
     double calculateTotalCost() const {
         return lengthOfStay * baseCostPerHour * daysVisitPerYear;
     }
 
-    // Recategorize patients
     std::string getAgeGroup() const {
         if (age >= 0 && age <= 17) {
             return "0-17: Pediatrics & Adolescents";
@@ -36,23 +32,19 @@ struct patientRecord { // data container: containing dataset patient information
     }
 };
 
-class Array { // build using raw memory allocation
+class Array {
 
 public:
-	patientRecord* data; // pointer to the array of patient records
-	int size; // number of patients currently stored
-	int capacity; // maximum patients number current memory can hold
+	patientRecord* data;
+	int size;
+	int capacity;
 	
-	Array() { // Array constructor
+	Array() {
 		capacity = 10;
 		size = 0;
-		data = new patientRecord[capacity]; // generate 10 records to start 
+		data = new patientRecord[capacity];
 	}
 
-	/// when array is returned, computer will copy the memory address of the returned array
-	/// However, the returned array address has been deleted by destructor
-	/// computer crash when old address unable to access
-	/// This function is to create memory address for return array in order to be accessed 
 	Array(const Array& other) {
 		size = other.size;
 		capacity = other.capacity;
@@ -62,22 +54,21 @@ public:
 		}
 	}
 
-	~Array() { // destructor: free up memory when array is no longer needed
+	~Array() {
 		delete[] data;
 	}
 
-	// Expand the size of array if more data comes in
 	void push_back(const patientRecord& record) {
 		if (size == capacity) {
-			capacity *= 2; // expand twice the array size
+			capacity *= 2;
 			patientRecord* newData = new patientRecord[capacity];
 			for (int i = 0; i < size; i++) {
-				newData[i] = data[i]; // replacing old data from old into new array
+				newData[i] = data[i];
 			}
-			delete[] data; // delete old array
+			delete[] data;
 			data = newData; 
 		}
-		data[size++] = record; // add in the new data into new array
+		data[size++] = record;
 	}
 };
 

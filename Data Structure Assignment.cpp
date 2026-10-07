@@ -10,7 +10,6 @@
 #include "searchExperiment.h"
 #include "sortMetrics.h"
 
-// Helper function to time array-based sorting algorithms and track metrics, now including memory
 template <typename Func>
 void runArrayBenchmark(const std::string& rowLabel, const std::string& sortKey, Array arrayCopy, Func sortAlgorithm) {
     auto start = std::chrono::high_resolution_clock::now();
@@ -18,7 +17,6 @@ void runArrayBenchmark(const std::string& rowLabel, const std::string& sortKey, 
     auto end = std::chrono::high_resolution_clock::now();
     long long duration = std::chrono::duration_cast<std::chrono::microseconds>(end - start).count();
 
-    // Calculate memory usage (size of the array structure + the allocated data block)
     size_t memoryUsage = sizeof(Array) + (arrayCopy.size * sizeof(patientRecord));
 
     std::cout << "| " << std::left << std::setw(15) << rowLabel
@@ -30,7 +28,6 @@ void runArrayBenchmark(const std::string& rowLabel, const std::string& sortKey, 
 }
 
 int main() {
-    // Load Datasets into custom Array
     Array arr1 = toArray("Datasets/dataset1 facility_a.csv");
     DatasetSummary summary1 = analyzeDataset(arr1, "General Hospital (Facility A)");
     
@@ -61,7 +58,7 @@ int main() {
 
             case 2:
                 // =====================================================================
-                // EXPERIMENT B: QUICK SORT DATA DISTRIBUTION SENSITIVITY
+                // QUICK SORT DATA DISTRIBUTION SENSITIVITY
                 // =====================================================================
                 std::cout << "\n+" << std::string(111, '=') << "+\n";
                 std::cout << "| " << std::left << std::setw(109) << "QUICK SORT DATA DISTRIBUTION SENSITIVITY (Array)" << " |\n";
@@ -92,10 +89,10 @@ int main() {
                 BubbleSort::printPerformance(arr3, "Facility C");
 
                 // =====================================================================
-                // EXPERIMENT A: ALGORITHM VS. ALGORITHM
+                // ALGORITHM VS. ALGORITHM
                 // =====================================================================
                 std::cout << "\n+" << std::string(111, '=') << "+\n";
-                std::cout << "| " << std::left << std::setw(109) << "EXPERIMENT A: ALGORITHM COMPARISON ON FACILITY A (Array)" << " |\n";
+                std::cout << "| " << std::left << std::setw(109) << "ALGORITHM COMPARISON ON FACILITY A (Array)" << " |\n";
                 std::cout << "+" << std::string(111, '-') << "+\n";
                 std::cout << "| " << std::left << std::setw(15) << "Algorithm"
                           << "| " << std::left << std::setw(20) << "Sort Key"

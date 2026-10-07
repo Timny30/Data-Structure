@@ -1,13 +1,11 @@
 #ifndef BENCHMARK_STATS_H
 #define BENCHMARK_STATS_H
 
-// Repeated-benchmark policy, shared identically by sort and search benchmarks
 constexpr int SORT_WARMUP_RUNS = 3;
 constexpr int SORT_MEASURED_RUNS = 10;
 constexpr int SEARCH_WARMUP_RUNS = 5;
 constexpr int SEARCH_MEASURED_RUNS = 100;
 
-// Timing-sample statistics for a repeated benchmark
 struct BenchmarkStats {
     long long medianTimeNs = 0;
     double averageTimeNs = 0.0;
@@ -16,7 +14,6 @@ struct BenchmarkStats {
     int measuredRuns = 0;
 };
 
-// Sorts a raw array of nanosecond timing samples (simple insertion sort) 
 inline void sortTimingSamples(long long* samples, int count) {
     for (int i = 1; i < count; ++i) {
         const long long key = samples[i];
@@ -29,7 +26,6 @@ inline void sortTimingSamples(long long* samples, int count) {
     }
 }
 
-// Computes BenchmarkStats from `count` nanosecond timing samples (measured runs only)
 inline BenchmarkStats computeBenchmarkStats(long long* samples, int count) {
     BenchmarkStats stats;
     if (count <= 0) {

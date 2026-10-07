@@ -1,5 +1,3 @@
-// Date created: 2024-06-15
-// Date last modified: 2024-06-15
 
 #include "patientRecord.h"
 #include <fstream>
