@@ -151,121 +151,7 @@ private:
         return res;
     }
 
-    static SearchResult binarySearchAgeArray(const Array& arr, int minAge, int maxAge) {
-        SearchResult res;
-        if (arr.size == 0) return res;
-        auto startClock = std::chrono::high_resolution_clock::now();
-
-        int low = 0;
-        int high = arr.size - 1;
-        int lowerBound = -1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            res.comparisons++;
-            if (arr.data[mid].age >= minAge) {
-                lowerBound = mid;
-                high = mid - 1; 
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        int curr = (lowerBound != -1) ? lowerBound : low;
-        while (curr < arr.size && arr.data[curr].age <= maxAge) {
-            res.comparisons++;
-            if (arr.data[curr].age >= minAge) res.matchesFound++;
-            curr++;
-        }
-        if (curr < arr.size) res.comparisons++;
-
-        auto endClock = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(endClock - startClock).count();
-        return res;
-    }
-
-    static SearchResult exponentialSearchAgeArray(const Array& arr, int minAge, int maxAge) {
-        SearchResult res;
-        if (arr.size == 0) return res;
-        auto startClock = std::chrono::high_resolution_clock::now();
-
-        int bound = 1;
-        
-        while (bound < arr.size && arr.data[bound].age < minAge) {
-            res.comparisons++;
-            bound *= 2;
-        }
-        if (bound < arr.size) res.comparisons++;
-
-        int low = bound / 2;
-        int high = std::min(bound, arr.size - 1);
-        int lowerBound = -1;
-
-        while (low <= high) {
-            int mid = low + (high - low) / 2;
-            res.comparisons++;
-            if (arr.data[mid].age >= minAge) {
-                lowerBound = mid;
-                high = mid - 1;
-            } else {
-                low = mid + 1;
-            }
-        }
-
-        int curr = (lowerBound != -1) ? lowerBound : low;
-        while (curr < arr.size && arr.data[curr].age <= maxAge) {
-            res.comparisons++;
-            if (arr.data[curr].age >= minAge) res.matchesFound++;
-            curr++;
-        }
-        if (curr < arr.size) res.comparisons++;
-
-        auto endClock = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(endClock - startClock).count();
-        return res;
-    }
-
-    static SearchResult interpolationSearchAgeArray(const Array& arr, int minAge, int maxAge) {
-        SearchResult res;
-        if (arr.size == 0) return res;
-        auto startClock = std::chrono::high_resolution_clock::now();
-
-        int low = 0;
-        int high = arr.size - 1;
-        int lowerBound = -1;
-
-        while (low <= high && minAge >= arr.data[low].age && minAge <= arr.data[high].age) {
-            res.comparisons += 2; 
-            
-            if (low == high) {
-                if (arr.data[low].age >= minAge) lowerBound = low;
-                break;
-            }
-
-            double proportion = static_cast<double>(minAge - arr.data[low].age) / (arr.data[high].age - arr.data[low].age);
-            int pos = low + static_cast<int>(proportion * (high - low));
-
-            res.comparisons++;
-            if (arr.data[pos].age >= minAge) {
-                lowerBound = pos;
-                high = pos - 1; 
-            } else {
-                low = pos + 1;
-            }
-        }
-
-        int curr = (lowerBound != -1) ? lowerBound : low;
-        while (curr < arr.size && arr.data[curr].age <= maxAge) {
-            res.comparisons++;
-            if (arr.data[curr].age >= minAge) res.matchesFound++;
-            curr++;
-        }
-        if (curr < arr.size) res.comparisons++;
-
-        auto endClock = std::chrono::high_resolution_clock::now();
-        res.durationNanosec = std::chrono::duration_cast<std::chrono::nanoseconds>(endClock - startClock).count();
-        return res;
-    }
+    
 
     static void printHeader(const std::string& title) {
         std::cout << "\n+" << std::string(166, '=') << "+\n";
@@ -382,18 +268,6 @@ public:
         
         printRow("Jump Search", "Array", "Sorted", runRepeatedSearch([&]() {
             return jumpSearchAgeArray(sortedArr, minAge, maxAge);
-        }));
-        
-        printRow("Binary Search", "Array", "Sorted", runRepeatedSearch([&]() {
-            return binarySearchAgeArray(sortedArr, minAge, maxAge);
-        }));
-        
-        printRow("Exponen. Search", "Array", "Sorted", runRepeatedSearch([&]() {
-            return exponentialSearchAgeArray(sortedArr, minAge, maxAge);
-        }));
-        
-        printRow("Interpol. Search", "Array", "Sorted", runRepeatedSearch([&]() {
-            return interpolationSearchAgeArray(sortedArr, minAge, maxAge);
         }));
         
         std::cout << "+" << std::string(166, '=') << "+\n";
