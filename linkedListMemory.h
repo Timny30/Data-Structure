@@ -6,21 +6,6 @@
 #include <iomanip>
 #include <string>
 
-// Estimated structural memory footprint for the custom LinkedList.
-//
-// Node count is obtained by traversing the list OUTSIDE any sorting/searching
-// timer, purely for this memory report - never inside a benchmarked region.
-//
-// Estimated Structural Memory = sizeof(LinkedList) + nodeCount * sizeof(node)
-// This is the authoritative total. "Patient Payload Storage" and "Next
-// Pointer Overhead" below are explanatory components only; their sum may not
-// exactly equal nodeCount * sizeof(node) if the compiler adds alignment
-// padding inside node. Any such padding is reported separately below rather
-// than hidden.
-//
-// This is a structural estimate based on sizeof(); dynamic/internal
-// std::string storage (patientID, careType) and allocator overhead are not
-// included, since sizeof() cannot see heap-allocated string payloads.
 inline void printLinkedListMemoryFootprint(const LinkedList& list, const std::string& facilityName) {
     long long nodeCount = 0;
     for (node* current = list.head; current != nullptr; current = current->next) {

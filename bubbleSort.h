@@ -55,8 +55,6 @@ public:
         return sort(list, SortField::Age);
     }
 
-    // metrics.comparisons: one increment per adjacent-node key evaluation.
-    // metrics.dataMovements: one increment per completed adjacent-node rearrangement (A->B becoming B->A)
     static SortMetrics sort(LinkedList& list, SortField field) {
         SortMetrics metrics;
         if (list.head == nullptr || list.head->next == nullptr) {
@@ -129,13 +127,11 @@ public:
         std::cout << "+" << std::string(128, '-') << "+\n";
 
         for (SortField field : fields) {
-            // Warm-up runs
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
                 LinkedList warmupCopy = sourceList;
                 sort(warmupCopy, field);
             }
 
-            // Measured runs
             long long samples[SORT_MEASURED_RUNS];
             SortMetrics firstMetrics;
             bool metricsConsistent = true;

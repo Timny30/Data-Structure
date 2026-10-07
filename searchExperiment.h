@@ -11,38 +11,17 @@
 #include <cmath>
 #include <algorithm>
 
-// comparisons    = one logical evaluation of a patient record's relevant
-//                  search key against the search criterion (Age/CareType/
-//                  Duration). Pointer/nullptr/loop-boundary checks, pure
-//                  node traversal (current = current->next), and step
-//                  arithmetic are never counted here.
-// recordAccesses = one patient-record/node position access performed while
-//                  searching/navigating. This exists specifically to expose
-//                  the Linked List's node-by-node traversal cost (including
-//                  jump-simulation hops and the O(n) length-discovery walk)
-//                  that has no equivalent cost on the Array side, where
-//                  direct indexing keeps recordAccesses equal to comparisons.
 struct SearchResult {
     int matchesFound = 0;
     long long comparisons = 0;
     long long recordAccesses = 0;
     long long durationNanosec = 0;
-    // Structural data-structure memory footprint (bytes), reused from
-    // BubbleSort::calculateMemoryUsage(...) - only populated by experiments
-    // that measure it (currently the Care Type experiment); 0 otherwise.
+
     std::size_t memoryBytes = 0;
-    // Algorithm auxiliary-space complexity (a fixed label, not a byte count).
+
     std::string memoryOverhead = "O(1)";
 };
 
-// Result of a repeated benchmark of one search configuration.
-// result: the deterministic values (matches/comparisons/recordAccesses/
-//         memoryOverhead) captured from the first measured run.
-// timing: aggregated Median/Average/Min/Max statistics across all measured
-//         runs (warm-up runs never contribute samples).
-// metricsConsistent: false only if a later measured run's deterministic
-//         values differed from the first run's - a correctness flag, not a
-//         timing statistic.
 struct RepeatedSearchOutcome {
     SearchResult result;
     BenchmarkStats timing;
@@ -52,9 +31,8 @@ struct RepeatedSearchOutcome {
 class SearchExperiment {
 private:
     // ==========================================
-    // 1. AGE SEARCH LOGIC
+    // AGE SEARCH LOGIC
     // ==========================================
-
     static SearchResult linearSearchAgeList(const LinkedList& list, int minAge, int maxAge, bool isSorted) {
         SearchResult res;
         auto start = std::chrono::high_resolution_clock::now();
@@ -71,19 +49,6 @@ private:
         return res;
     }
 
-
-    // Counting rule for this Linked List Jump Search:
-    // - comparisons increments ONLY where a node's patient key (data.age) is
-    //   actually evaluated against minAge/maxAge to make an algorithmic
-    //   decision (the boundary checks and the final linear-scan check).
-    // - recordAccesses increments for every node position the algorithm
-    //   physically visits: (1) the length-discovery traversal below (the
-    //   list has no O(1) size field, so this O(n) walk is genuine, required
-    //   work for this implementation and stays inside the timer), (2) every
-    //   node stepped over inside advanceStep while simulating a "jump" (the
-    //   list cannot random-access a target index - it must walk node by
-    //   node), and (3) every node whose key is read for a comparison above.
-    // No extra traversal is added beyond what the algorithm already performs.
     static SearchResult jumpSearchAgeList(const LinkedList& list, int minAge, int maxAge) {
         SearchResult res;
         if (list.head == nullptr) return res;
@@ -137,7 +102,7 @@ private:
 
 
     // ==========================================
-    // 2. CARE TYPE SEARCH LOGIC (Linear Only)
+    // CARE TYPE SEARCH LOGIC (Linear Only)
     // ==========================================
 
     static SearchResult linearSearchCareTypeList(const LinkedList& list, const std::string& targetType) {
@@ -155,11 +120,6 @@ private:
         return res;
     }
 
-    // Dataset PREPARATION only for the Care Type unsorted-vs-sorted Linear
-    // Search experiment - not a measured/benchmarked sorting algorithm, not
-    // counted anywhere, and never timed. Sorts a copy's node data ascending
-    // by careType (lexicographical) via adjacent-node data swaps, keeping it
-    // a genuine singly linked list (no array conversion).
     static void sortCareTypeListCopy(LinkedList& list) {
         if (list.head == nullptr) return;
         bool swapped;
@@ -179,7 +139,7 @@ private:
     }
 
     // ==========================================
-    // 3. VISIT DURATION SEARCH LOGIC (Threshold)
+    // VISIT DURATION SEARCH LOGIC (Threshold)
     // ==========================================
 
     static SearchResult linearSearchDurationList(const LinkedList& list, int threshold) {
@@ -197,12 +157,6 @@ private:
         return res;
     }
 
-
-    // Same counting rule as jumpSearchAgeList: comparisons only where
-    // data.lengthOfStay is evaluated against threshold; recordAccesses for
-    // every node position physically visited (length discovery, jump-step
-    // traversal, and evaluated boundary/scan nodes). See jumpSearchAgeList
-    // for the full rationale.
     static SearchResult jumpSearchDurationList(const LinkedList& list, int threshold) {
         SearchResult res;
         if (list.head == nullptr) return res;
@@ -254,7 +208,7 @@ private:
     }
 
     // ==========================================
-    // 1. BINARY SEARCH (Linked List Adaptation)
+    // BINARY SEARCH (Linked List Adaptation)
     // ==========================================
     static SearchResult binarySearchAgeList(const LinkedList& list, int minAge, int maxAge) {
         SearchResult res;
@@ -272,13 +226,12 @@ private:
             res.recordAccesses++;
             if (mid->data.age >= minAge) {
                 lowerBound = mid;
-                end = mid; // Search left half to ensure we find the very first match
+                end = mid;
             } else {
                 start = mid->next;
             }
         }
 
-        // Linear scan from the discovered lower bound
         node* curr = lowerBound ? lowerBound : start;
         while (curr != nullptr && curr->data.age <= maxAge) {
             res.comparisons++;
@@ -294,7 +247,7 @@ private:
     }
 
     // ==========================================
-    // 2. EXPONENTIAL SEARCH (Linked List Adaptation)
+    // EXPONENTIAL SEARCH (Linked List Adaptation)
     // ==========================================
     static SearchResult exponentialSearchAgeList(const LinkedList& list, int minAge, int maxAge) {
         SearchResult res;
@@ -305,7 +258,6 @@ private:
         node* boundNode = list.head;
         node* prevNode = nullptr;
 
-        // Phase 1: Jump in powers of 2 to find the range
         while (boundNode != nullptr && boundNode->data.age < minAge) {
             res.comparisons++;
             res.recordAccesses++;
@@ -319,7 +271,6 @@ private:
         }
         if (boundNode != nullptr) { res.comparisons++; res.recordAccesses++; }
 
-        // Phase 2: Binary Search within the discovered bounds
         node* start = prevNode ? prevNode : list.head;
         node* end = boundNode ? boundNode->next : nullptr;
         node* lowerBound = nullptr;
@@ -353,14 +304,13 @@ private:
     }
 
     // ==========================================
-    // 3. INTERPOLATION SEARCH (Linked List Adaptation)
+    // INTERPOLATION SEARCH (Linked List Adaptation)
     // ==========================================
     static SearchResult interpolationSearchAgeList(const LinkedList& list, int minAge, int maxAge) {
         SearchResult res;
         if (list.head == nullptr) return res;
         auto startClock = std::chrono::high_resolution_clock::now();
 
-        // Need total node count to simulate array indexes
         int n = 0;
         node* counter = list.head;
         while (counter != nullptr) {
@@ -376,14 +326,13 @@ private:
         node* lowerBound = nullptr;
 
         while (low <= high && minAge >= lowNode->data.age && minAge <= highNode->data.age) {
-            res.comparisons += 2; // Checking boundaries
+            res.comparisons += 2;
             
             if (low == high) {
                 if (lowNode->data.age >= minAge) lowerBound = lowNode;
                 break;
             }
 
-            // Interpolation formula
             double proportion = static_cast<double>(minAge - lowNode->data.age) / (highNode->data.age - lowNode->data.age);
             int pos = low + static_cast<int>(proportion * (high - low));
 
@@ -391,7 +340,6 @@ private:
             res.comparisons++;
 
             if (posNode->data.age >= minAge) {
-                // Potential lower bound found, but we must check left side to ensure it's the *first* instance
                 lowerBound = posNode;
                 high = pos - 1;
                 highNode = getNodeAtIndex(list.head, high, res);
@@ -415,10 +363,6 @@ private:
         return res;
     }
 
-
-    // ==========================================
-    // Print Format
-    // ==========================================
     static void printHeader(const std::string& title) {
         std::cout << "\n+" << std::string(166, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(164) << title << " |\n";
@@ -455,13 +399,6 @@ private:
         }
     }
 
-    // Runs searchFunc SEARCH_WARMUP_RUNS times (discarded) then
-    // SEARCH_MEASURED_RUNS times (timed and validated). Deterministic values
-    // (matches/comparisons/recordAccesses) are taken from the first measured
-    // run and cross-checked against every subsequent measured run. For Jump
-    // Search, searchFunc recomputes n from scratch every single call (no
-    // caching between runs), so the length-discovery traversal's real O(n)
-    // cost is paid, and timed, on every warm-up and measured invocation.
     template <typename SearchFunc>
     static RepeatedSearchOutcome runRepeatedSearch(SearchFunc searchFunc) {
         for (int w = 0; w < SEARCH_WARMUP_RUNS; ++w) {
@@ -486,12 +423,6 @@ private:
         return outcome;
     }
 
-    // Dedicated header/row for the Care Type experiment only (Age/Duration
-    // experiments keep using printHeader/printRow unchanged). Adds the
-    // Memory (Bytes) structural footprint column and renames "Mem Ovhd" to
-    // "Aux Space" for clarity - the O(1) meaning itself is unchanged, it
-    // still represents Linear Search's algorithm auxiliary-space complexity,
-    // not a measured byte value.
     static void printCareTypeHeader(const std::string& title) {
         std::cout << "\n+" << std::string(182, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(180) << title << " |\n";
@@ -530,7 +461,6 @@ private:
         }
     }
 
-    // Helper 1: Finds the middle node for Binary Search using slow/fast pointers
     static node* getMiddle(node* start, node* end, SearchResult& res) {
         if (start == nullptr) return nullptr;
         node* slow = start;
@@ -547,7 +477,6 @@ private:
         return slow;
     }
 
-    // Helper 2: Traverses to a specific index for Interpolation Search
     static node* getNodeAtIndex(node* start, int index, SearchResult& res) {
         node* curr = start;
         for (int i = 0; i < index && curr != nullptr; i++) {
@@ -597,18 +526,10 @@ public:
         RepeatedSearchOutcome unsortedOutcome = runRepeatedSearch([&]() {
             return linearSearchCareTypeList(originalList, targetType);
         });
-        // Structural memory footprint computed AFTER repeated-search timing
-        // completes - never inside the timed region - reusing the existing
-        // BubbleSort::calculateMemoryUsage(const LinkedList&) formula rather
-        // than introducing a new/duplicated memory calculation.
+
         unsortedOutcome.result.memoryBytes = BubbleSort::calculateMemoryUsage(originalList);
         printCareTypeRow("Linear Search", "Singly List", "Unsorted", unsortedOutcome);
 
-        // Sorted-by-careType copy is prepared ONCE, before repeated-search
-        // timing begins; preparation cost stays excluded from search time.
-        // The same linearSearchCareTypeList function (no early-termination,
-        // no changed comparison/access definitions) is reused unmodified -
-        // this experiment isolates the effect of data ordering alone.
         LinkedList careTypeSortedList(originalList);
         sortCareTypeListCopy(careTypeSortedList);
 

@@ -15,7 +15,6 @@ struct patientRecord {
         return lengthOfStay * baseCostPerHour * daysVisitPerYear;
     }
 
-    // Categorize patients
     std::string getAgeGroup() const {
         if (age >= 0 && age <= 17) {
             return "0-17: Pediatrics & Adolescents";
@@ -46,7 +45,7 @@ public:
 
 	LinkedList() : head(nullptr), tail(nullptr) {}
 
-	void push_back(const patientRecord& record) { //Adding new records
+	void push_back(const patientRecord& record) {
 		node* newnode = new node(record); 
 		if (head == nullptr) { 
 			head = tail = newnode; 
@@ -57,7 +56,7 @@ public:
 		}
 	}
 
-	LinkedList(const LinkedList& other) : head(nullptr), tail(nullptr) { //Copy Constructor Function
+	LinkedList(const LinkedList& other) : head(nullptr), tail(nullptr) {
 		node* current = other.head;
 		while (current != nullptr) {
 			push_back(current->data); 
@@ -65,7 +64,7 @@ public:
 		}
 	}
 
-	~LinkedList() { //Destructor Function
+	~LinkedList() {
 		node* current = head;
 		while (current != nullptr) {
 			node* nextNode = current->next; 

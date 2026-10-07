@@ -24,7 +24,6 @@ private:
     static node* quickSortRecursive(node* head, SortKey key, SortMetrics& metrics) {
         if (head == nullptr || head->next == nullptr) return head;
 
-        // Use the first node as the pivot
         node* pivot = head;
         node* current = head->next;
         
@@ -33,9 +32,8 @@ private:
         node* greaterHead = nullptr;
         node* greaterTail = nullptr;
 
-        pivot->next = nullptr; // Isolate pivot
+        pivot->next = nullptr;
 
-        // Partitioning
         while (current != nullptr) {
             node* nextNode = current->next;
             current->next = nullptr;
@@ -53,11 +51,9 @@ private:
             current = nextNode;
         }
 
-        // Recursively sort sublists
         lessHead = quickSortRecursive(lessHead, key, metrics);
         greaterHead = quickSortRecursive(greaterHead, key, metrics);
 
-        // Concatenate lessHead + pivot + greaterHead
         if (lessHead != nullptr) {
             node* temp = lessHead;
             while (temp->next != nullptr) temp = temp->next;

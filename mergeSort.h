@@ -29,12 +29,6 @@ private:
         return false;
     }
 
-    // metrics.comparisons: one increment per left-vs-right sort-key evaluation.
-    // metrics.dataMovements: one increment per node attached into the merged
-    // ordering while both candidate lists are still non-empty. Once one side
-    // is exhausted, the remaining (already-ordered) chain is attached directly
-    // without traversing/counting each of its nodes individually, matching
-    // the algorithm's actual O(1) remainder-attach behavior.
     static node* mergeLists(node* left, node* right, SortKey key, SortMetrics& metrics) {
         node dummy(patientRecord{});
         node* tail = &dummy;
@@ -108,7 +102,6 @@ public:
             SortKey::Age, SortKey::VisitDuration, SortKey::TotalMedicalCost
         };
 
-        // Expanded border width from 158 to 176 to accommodate the new column
         std::cout << "\n+" << std::string(176, '=') << "+\n";
         std::cout << "| " << std::left << std::setw(174)
                   << ("MERGE SORT PERFORMANCE: " + datasetName) << " |\n";
@@ -125,7 +118,6 @@ public:
                   << std::setw(18) << "Memory Usage (B)" << " |\n";
         std::cout << "+" << std::string(176, '-') << "+\n";
 
-        // Count nodes to determine the size of the dataset 
         size_t nodeCount = 0;
         node* current = list.head;
         while (current != nullptr) {
@@ -134,15 +126,11 @@ public:
         }
 
         for (SortKey key : keys) {
-            // Warm-up runs: fresh deep copy each time, results discarded.
             for (int w = 0; w < SORT_WARMUP_RUNS; ++w) {
                 LinkedList warmupCopy(list);
                 sort(warmupCopy, key);
             }
 
-            // Measured runs: fresh deep copy each time (copy construction is
-            // outside the timed region), starting from the identical
-            // original ordering every run.
             long long samples[SORT_MEASURED_RUNS];
             SortMetrics firstMetrics;
             bool metricsConsistent = true;
@@ -165,8 +153,6 @@ public:
 
             const BenchmarkStats stats = computeBenchmarkStats(samples, SORT_MEASURED_RUNS);
 
-            // Calculate total memory: List metadata + (node count * size of each node)
-            // No secondary buffer is added because Linked List Merge Sort runs in-place
             size_t totalMemory = sizeof(LinkedList) + (nodeCount * sizeof(node));
 
             std::cout << "| " << std::left << std::setw(22) << keyName(key)

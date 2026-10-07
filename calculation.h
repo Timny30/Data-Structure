@@ -6,10 +6,8 @@
 #include <iomanip>
 #include <string>
 
-// Maximum age demographic brackets
 const int NUM_AGE_GROUPS = 6;
 
-// Metrics for an individual demographic bracket
 struct AgeGroupMetrics {
     std::string groupName;
     int patientCount = 0;
@@ -18,7 +16,6 @@ struct AgeGroupMetrics {
     std::string preferredCareType = "N/A";
 };
 
-// Summary report across all age brackets for a facility
 struct DatasetSummary {
     std::string facilityName;
     int totalPatients = 0;
@@ -68,7 +65,6 @@ public:
             }
             curr = curr->next;
         }
-        // If not found, insert new node at the front
         CareTypeFreqNode* newNode = new CareTypeFreqNode(type);
         newNode->next = head;
         head = newNode;
@@ -88,7 +84,6 @@ public:
     }
 };
 
-// Map patient age to index [0 - 5]
 inline int mapAgeToGroupIndex(int age) {
     if (age >= 0 && age <= 17)   return 0;
     if (age >= 18 && age <= 25)  return 1;
@@ -111,7 +106,6 @@ inline void initSummaryGroups(DatasetSummary& summary) {
 // Analysis Implementations
 // ========================
 
-// Analyze using custom LinkedList
 inline DatasetSummary analyzeDataset(const LinkedList& list, const std::string& facilityName) {
     DatasetSummary summary;
     summary.facilityName = facilityName;
@@ -158,7 +152,6 @@ inline void printSummary(const DatasetSummary& summary) {
     std::cout << "| Overall Avg / Patient: $" << std::left << std::setw(77) << summary.overallAverageCost << " |\n";
     std::cout << "+" << std::string(103, '-') << "+\n";
 
-    // Column Headers
     std::cout << "| " << std::left 
               << std::setw(34) << "Age Demographic Group"
               << std::right

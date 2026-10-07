@@ -10,10 +10,8 @@
 #include "linkedListMemory.h"
 #include "quickSort.h"
 
-// Helper function to time linked list-based sorting algorithms and track metrics, now including memory
 template <typename Func>
 void runComparativeBenchmark(const std::string& rowLabel, const std::string& sortKey, LinkedList listCopy, Func sortAlgorithm) {
-    // Calculate memory usage (size of the LinkedList struct + size of each dynamically allocated node)
     size_t memoryUsage = sizeof(LinkedList);
     node* tempNode = listCopy.head;
     while (tempNode != nullptr) {
@@ -39,7 +37,6 @@ int main() {
     std::cout << "   PROGRAM 2: LINKEDLIST-BASED PROTOTYPE EXECUTION     \n";
     std::cout << "=======================================================\n";
 
-    // Load Datasets
     LinkedList list1 = toLinkedList("Datasets/dataset1 facility_a.csv");
     DatasetSummary summary1 = analyzeDataset(list1, "General Hospital (Facility A)");
     
@@ -67,7 +64,6 @@ int main() {
                 printSummary(summary2);
                 printSummary(summary3);
 
-                // Linked List Structural Memory Footprint
                 printLinkedListMemoryFootprint(list1, "Facility A");
                 printLinkedListMemoryFootprint(list2, "Facility B");
                 printLinkedListMemoryFootprint(list3, "Facility C");
@@ -105,7 +101,7 @@ int main() {
                 BubbleSort::printPerformance(list3, "Facility C");
 
                 // =====================================================================
-                // EXPERIMENT A: ALGORITHM VS. ALGORITHM
+                // ALGORITHM VS. ALGORITHM
                 // =====================================================================
                 std::cout << "\n+" << std::string(111, '=') << "+\n";
                 std::cout << "| " << std::left << std::setw(109) << "EXPERIMENT A: ALGORITHM COMPARISON ON FACILITY A (Linked List)" << " |\n";
